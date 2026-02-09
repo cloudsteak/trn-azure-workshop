@@ -29,8 +29,8 @@ Egy egyszerű, de valódi alkalmazás architektúra Azure szolgáltatásokkal.
 ## 1️⃣ Resource Group
 
 ```
-Név: rg-workshop-tips
-Régió: West Europe
+Név: tippek
+Régió: Sweden Central
 ```
 
 ---
@@ -142,7 +142,7 @@ https://azuretips-api-XXXX.azurewebsites.net/api/tip/random
 ### SQL Server
 - **Név**: `sql-workshop-tips-XXXX`
 - **Admin**: `sqladmin` + erős jelszó
-- **Régió**: West Europe
+- **Régió**: Sweden Central
 
 ### Database
 - **Név**: `azuretips`
@@ -171,7 +171,7 @@ Query Editor-ban futtasd a `database/init.sql` tartalmát.
 ## 🧹 Takarítás
 
 ```bash
-az group delete --name rg-workshop-tips --yes --no-wait
+az group delete --name tippek --yes --no-wait
 ```
 
 ---
