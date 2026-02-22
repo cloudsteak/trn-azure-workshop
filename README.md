@@ -1,77 +1,83 @@
 # ☁️ Azure Képzés – Cloud Idézetek + AI Chatbot
 
-Egy napos, gyakorlati Azure képzés. A nap végére egy **működő webalkalmazást** hozunk létre közösen.
+Egy napos, gyakorlati Azure képzés. A nap végére egy **működő webalkalmazást** hozunk létre,
+ami idézeteket jelenít meg adatbázisból és egy AI chatbotot is tartalmaz.
 
 ---
 
 ## 🏗️ Architektúra
 
-```
-Böngésző
-    │
-    ▼
-Azure VM  (Windows Server + IIS)   ← Frontend: statikus HTML/CSS/JS
-    │
-    ▼ (HTTPS API hívások)
-Azure App Service  (Python Flask)  ← Backend: /quotes  /chat  /health
-    ├──► Azure Database for MySQL  ← Idézetek tárolása
-    └──► Azure OpenAI Service      ← AI chatbot (GPT-4o-mini)
+```mermaid
+graph TD
+    Browser["Böngésző"]
+    VM["Frontend:<br/>Azure VM + IIS"]
+    AppService["Backend:<br/>App Service (Flask)"]
+    MySQL["Database:<br/>Azure MySQL"]
+    OpenAI["AI:<br/>Azure OpenAI"]
+
+    Browser --> VM
+    VM --> AppService
+    AppService --> MySQL
+    AppService --> OpenAI
+
+    style Browser   fill:#1e293b,stroke:#94a3b8,color:#f1f5f9
+    style VM        fill:#1e3a5f,stroke:#38bdf8,color:#f1f5f9
+    style AppService fill:#1a3636,stroke:#4ade80,color:#f1f5f9
+    style MySQL     fill:#3b1f1f,stroke:#f97316,color:#f1f5f9
+    style OpenAI    fill:#3b1f3b,stroke:#f093fb,color:#f1f5f9
 ```
 
-### Érintett Azure szolgáltatások
-
-| Szolgáltatás | Szerepe |
-|---|---|
-| **Azure Virtual Machine** | Frontend hosting (Windows IIS) |
-| **Azure App Service** | Backend API (Python Flask) |
-| **Azure Database for MySQL** | Relational DB – idézetek |
-| **Azure OpenAI / AI Foundry** | GPT-4o-mini chatbot |
+| Réteg     | Azure szolgáltatás        | Mappa                       |
+| --------- | ------------------------- | --------------------------- |
+| Frontend  | Azure VM + IIS (Windows)  | `01-Frontend/`              |
+| Backend   | App Service (Python)      | `02-Backend/`               |
+| Adatbázis | Azure Database for MySQL  | `03-Database/`              |
+| AI        | Azure OpenAI / AI Foundry | _(konzolban konfiguráljuk)_ |
 
 ---
 
-## 📁 Struktúra
+## 📁 Projekt struktúra
 
 ```
 .
-├── frontend/
+├── 01-Frontend/
 │   ├── index.html
-│   ├── css/style.css
+│   ├── css/
+│   │   └── style.css
 │   └── js/
-│       ├── config.js      ← ⚠️ BACKEND_URL ide kerül
+│       ├── config.js     ← ⚠️ BACKEND_URL beállítás
 │       └── app.js
-├── backend/
-│   ├── app.py             ← Flask API
+├── 02-Backend/
+│   ├── app.py            ← Flask API
 │   └── requirements.txt
-├── database/
-│   └── init.sql           ← Tábla + 15 idézet
-├── .github/workflows/
-│   └── deploy-backend.yml ← GitHub Actions auto-deploy
-└── README.md
+├── 03-Database/
+│   └── init.sql          ← Tábla + idézetek
+├── LICENSE
+├── README.md             ← Ez a fájl
+├── requirements.txt
+└── setup-iis.ps1         ← IIS telepítő script
 ```
 
 ---
 
 ## 🎯 Haladási terv
 
-| # | Lépés | Működik utána? |
-|---|---|---|
-| 1 | Resource Group létrehozása | – |
-| 2 | Azure VM + Apache + frontend | ❌ (nincs backend URL) |
-| 3 | App Service + GitHub auto-deploy | ❌ (nincs DB, nincs OpenAI) |
-| 4 | config.js frissítése | ❌ (nincs DB) |
-| 5 | Azure MySQL + init.sql + App Service env vars | ✅ Idézetek működnek! |
-| 6 | Azure OpenAI deployment + env vars | ✅ AI chatbot is működik! |
+| #   | Lépés                                        | Működik utána?            |
+| --- | -------------------------------------------- | ------------------------- |
+| 1   | Azure VM + IIS + frontend feltöltés          | ❌ (nincs backend URL)    |
+| 2   | App Service létrehozása + GitHub deploy       | ❌ (nincs DB, nincs AI)   |
+| 3   | config.js frissítése az App Service URL-jére | ❌ (nincs DB)             |
+| 4   | Azure MySQL + init.sql + env vars            | ✅ Idézetek működnek!     |
+| 5   | Azure OpenAI deployment + env vars           | ✅ AI chatbot is működik! |
 
 ---
 
 ## Előfeltételek
 
-- Azure előfizetés (ingyenes trial is elég)
+- Azure előfizetés (ingyenes trial elég)
 - GitHub fiók (a backend auto-deployhoz)
-- [DBeaver Community](https://dbeaver.io/download/) – adatbázis kezeléshez
 - Régió mindenhova: **West Europe**
-
-> 💡 Az összes erőforrást egy **Resource Group**-ba rakjuk (`workshop-rg`), így a végén egyetlen törlésssel mindent eltávolítunk.
+- **DBeaver Community** (adatbázis kezeléshez) – https://dbeaver.io/download/
 
 ---
 
@@ -79,37 +85,41 @@ Azure App Service  (Python Flask)  ← Backend: /quotes  /chat  /health
 
 Azure Portal → **Resource groups** → **Create**
 
-| Beállítás | Érték |
-|---|---|
-| Name | `workshop-rg` |
-| Region | `West Europe` |
+| Beállítás | Érték         |
+| --------- | ------------- |
+| Name      | `workshop-rg` |
+| Region    | `West Europe` |
+
+> 💡 Az összes erőforrást ide rakjuk – a végén egyetlen törlésssel mindent eltávolítunk.
 
 ---
 
 ## 2. lépés – Azure VM + IIS (Frontend)
 
-### VM létrehozása
+> 📂 Fájlok: `01-Frontend/`
+
+### 2.1 VM létrehozása
 
 Azure Portal → **Virtual machines** → **Create** → **Azure virtual machine**
 
-| Beállítás | Érték |
-|---|---|
-| Resource group | `workshop-rg` |
-| Name | `frontend-vm` |
-| Region | `West Europe` |
-| Image | **Windows Server 2022 Datacenter** |
-| Size | **Standard_B2s** (2 vCPU, 4 GB – Windows igényes) |
-| Username | `azureuser` |
-| Password | válassz és jegyezd meg! |
-| Inbound ports | **HTTP (80), RDP (3389)** |
+| Beállítás     | Érték                              |
+| ------------- | ---------------------------------- |
+| Resource group| `workshop-rg`                      |
+| Name          | `frontend-vm`                      |
+| Region        | `West Europe`                      |
+| Image         | **Windows Server 2022 Datacenter** |
+| Size          | **Standard_B2s**                   |
+| Username      | `azureuser`                        |
+| Password      | válassz és jegyezd meg!            |
+| Inbound ports | **HTTP (80), RDP (3389)**          |
 
-### Csatlakozás
+### 2.2 Csatlakozás
 
 Azure Portal → VM → **Connect** → **RDP** → letöltöd az RDP fájlt → megnyitod → bejelentkezel.
 
-### IIS telepítése + frontend letöltése
+### 2.3 IIS telepítése + frontend letöltése
 
-A VM-en nyiss egy **PowerShell** ablakot (**Run as Administrator**), majd futtasd:
+A VM-en nyiss egy **PowerShell** ablakot (**Run as Administrator**), majd futtasd a gyökérben lévő `setup-iis.ps1` scriptet – vagy másold be az alábbi parancsokat:
 
 ```powershell
 # IIS telepítése
@@ -119,7 +129,7 @@ Install-WindowsFeature -Name Web-Server -IncludeManagementTools
 Remove-Item C:\inetpub\wwwroot\iisstart* -Force -ErrorAction SilentlyContinue
 
 # Frontend letöltése GitHub-ról
-$repo = "https://raw.githubusercontent.com/cloudsteak/trn-azure-workshop/main/frontend"
+$repo = "https://raw.githubusercontent.com/cloudsteak/trn-azure-workshop/main/01-Frontend"
 $root = "C:\inetpub\wwwroot"
 
 New-Item -ItemType Directory -Force -Path "$root\css", "$root\js" | Out-Null
@@ -128,33 +138,31 @@ Invoke-WebRequest "$repo/index.html"    -OutFile "$root\index.html"
 Invoke-WebRequest "$repo/css/style.css" -OutFile "$root\css\style.css"
 Invoke-WebRequest "$repo/js/config.js"  -OutFile "$root\js\config.js"
 Invoke-WebRequest "$repo/js/app.js"     -OutFile "$root\js\app.js"
-
-Write-Host "Kész!" -ForegroundColor Green
 ```
 
-Teszt: `http://<VM_PUBLIC_IP>` → Az alkalmazás betölt (health piros – ez normális, nincs még backend).
-
-> 💡 A `config.js` szerkesztéséhez később: **Notepad** vagy **VS Code** a VM-en, fájl helye: `C:\inetpub\wwwroot\js\config.js`
+Teszt: `http://<VM_PUBLIC_IP>` → Az oldal megjelenik. A health dashboard piros – ez normális, nincs backend még.
 
 ---
 
-## 3. lépés – Azure App Service (Backend)
+## 3. lépés – App Service (Backend)
 
-### App Service létrehozása
+> 📂 Fájlok: `02-Backend/`
+
+### 3.1 App Service létrehozása
 
 Azure Portal → **App Services** → **Create** → **Web App**
 
-| Beállítás | Érték |
-|---|---|
-| Resource group | `workshop-rg` |
-| Name | `azure-quotes-api` *(egyedi névnek kell lennie!)* |
-| Publish | **Code** |
-| Runtime | **Python 3.12** |
-| OS | **Linux** |
-| Region | `West Europe` |
-| Plan | **Free F1** |
+| Beállítás      | Érték                                            |
+| -------------- | ------------------------------------------------ |
+| Resource group | `workshop-rg`                                    |
+| Name           | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
+| Publish        | **Code**                                         |
+| Runtime        | **Python 3.12**                                  |
+| OS             | **Linux**                                        |
+| Region         | `West Europe`                                    |
+| Plan           | **Free F1**                                      |
 
-### Startup parancs beállítása
+### 3.2 Startup parancs beállítása
 
 App Service → **Configuration** → **General settings** → **Startup Command**:
 
@@ -164,64 +172,54 @@ gunicorn --bind 0.0.0.0:8000 --timeout 60 app:app
 
 → **Save**
 
-### GitHub auto-deploy bekötése
+### 3.3 GitHub auto-deploy bekötése
 
 App Service → **Deployment Center**
 
-| Beállítás | Érték |
-|---|---|
-| Source | **GitHub** |
+| Beállítás    | Érték                        |
+| ------------ | ---------------------------- |
+| Source       | **GitHub**                   |
 | Organization | a te GitHub felhasználóneved |
-| Repository | `trn-azure-workshop` |
-| Branch | `main` |
+| Repository   | `trn-azure-workshop`         |
+| Branch       | `main`                       |
 
 → **Save**
 
-Ez automatikusan:
-- létrehozza a `.github/workflows/` alatt a deploy workflow fájlt
-- minden `main` branchre pusholt változtatás után újra deployol
+Minden `main` branchre pusholt változtatás után az App Service automatikusan újra deployol.
 
-> ✅ A repo már tartalmaz egy előre elkészített workflow fájlt (`.github/workflows/deploy-backend.yml`). Ha az Azure Portal saját fájlt hoz létre, törölheted a miénket – mindkettő működik.
-
-### GitHub Secrets beállítása (ha a saját workflow-t használjuk)
-
-GitHub → Repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
-| Secret | Érték |
-|---|---|
-| `AZURE_WEBAPP_NAME` | `azure-quotes-api` |
-| `AZURE_WEBAPP_PUBLISH_PROFILE` | letöltve az App Service-ből (lásd lent) |
-
-A publish profile letöltése: App Service → **Overview** → **Get publish profile** → letölt egy `.PublishSettings` fájlt → annak teljes tartalmát illeszd be a Secretbe.
-
-### config.js frissítése a VM-en
+### 3.4 ⚠️ Vissza a VM-re: config.js frissítése
 
 Nyisd meg a VM-en: `C:\inetpub\wwwroot\js\config.js` (Notepad vagy VS Code)
 
-Cseréld ki `XXXXXXXXXX`-et:
+Cseréld ki az `XXXXXXXXXX`-et:
+
 ```javascript
 const CONFIG = {
   BACKEND_URL: 'https://azure-quotes-api.azurewebsites.net'
 };
 ```
 
+> Az App Service URL-t megtalálod: Azure Portal → App Service → **Overview** → **Default domain**
+
 ---
 
 ## 4. lépés – Azure Database for MySQL
 
-### MySQL Flexible Server létrehozása
+> 📂 Fájlok: `03-Database/`
+
+### 4.1 MySQL Flexible Server létrehozása
 
 Azure Portal → **Azure Database for MySQL Flexible Servers** → **Create**
 
-| Beállítás | Érték |
-|---|---|
-| Resource group | `workshop-rg` |
-| Server name | `quotes-db` *(egyedi!)* |
-| Region | `West Europe` |
-| MySQL version | `8.0` |
-| Workload type | **Development** |
-| Admin username | `adminuser` |
-| Password | válassz és jegyezd meg! |
+| Beállítás      | Érték                   |
+| -------------- | ----------------------- |
+| Resource group | `workshop-rg`           |
+| Server name    | `quotes-db` _(egyedi!)_ |
+| Region         | `West Europe`           |
+| MySQL version  | `8.0`                   |
+| Workload type  | **Development**         |
+| Admin username | `adminuser`             |
+| Password       | válassz és jegyezd meg! |
 
 **Networking tab:**
 - Connectivity method: **Public access**
@@ -229,108 +227,128 @@ Azure Portal → **Azure Database for MySQL Flexible Servers** → **Create**
 
 → **Review + create** → Várj ~3 percet.
 
-### Adatbázis létrehozása
-
-MySQL Flexible Server → **Databases** → **Add**
-
-| Beállítás | Érték |
-|---|---|
-| Name | `cloudquotes` |
-| Charset | `utf8mb4` |
-
-### Firewall – App Service hozzáférés
+### 4.2 Firewall – App Service hozzáférés
 
 MySQL Flexible Server → **Networking** → **Firewall rules** → **Add**:
 
-| Name | Start IP | End IP |
-|---|---|---|
+| Name        | Start IP  | End IP            |
+| ----------- | --------- | ----------------- |
 | `allow-all` | `0.0.0.0` | `255.255.255.255` |
 
 > ⚠️ Workshop után szűkítsd le!
 
-### Csatlakozás DBeaver-rel
+### 4.3 Csatlakozás DBeaver-rel
 
-**New Database Connection → MySQL**
+DBeaver → **New Database Connection** → **MySQL**
 
-| Mező | Érték |
-|---|---|
-| Host | `quotes-db.mysql.database.azure.com` |
-| Port | `3306` |
-| Database | `cloudquotes` |
-| Username | `adminuser` |
-| Password | a te jelszavad |
+| Mező     | Érték                                |
+| -------- | ------------------------------------ |
+| Host     | `quotes-db.mysql.database.azure.com` |
+| Port     | `3306`                               |
+| Database | `cloudquotes`                        |
+| Username | `adminuser`                          |
+| Password | a te jelszavad                       |
 
 SSL tab: **Use SSL** ✅
 
 → **Test Connection** → **Finish**
 
-### SQL futtatása
+### 4.4 SQL futtatása DBeaver-ben
 
-DBeaver → `cloudquotes` → jobb klikk → **SQL Editor** → másold be a `database/init.sql` tartalmát → **Execute** (▶️)
+1. Bal oldali fa → `cloudquotes` → jobb klikk → **SQL Editor** → **Open SQL Script**
+2. Nyisd meg a `03-Database/init.sql` fájlt (File → Open File, vagy másold be a tartalmát)
+3. **Fontos**: az editor tetején ellenőrizd, hogy a `cloudquotes` adatbázis van kiválasztva!
+4. **Execute** (▶️ gomb vagy Ctrl+Enter) – az összes parancs lefut
+5. Ellenőrzés: a Results panelen látod a kategóriánkénti darabszámot
 
-### App Service – Application Settings
+### 4.5 ⚠️ App Service: environment variables beállítása
 
-App Service → **Configuration** → **Application settings** → add each:
+App Service → **Configuration** → **Application settings** → **New application setting**
 
-| Név | Érték |
-|---|---|
-| `DB_HOST` | `quotes-db.mysql.database.azure.com` |
-| `DB_USER` | `adminuser` |
-| `DB_PASSWORD` | a te jelszavad |
-| `DB_NAME` | `cloudquotes` |
+| Név           | Érték                                |
+| ------------- | ------------------------------------ |
+| `DB_HOST`     | `quotes-db.mysql.database.azure.com` |
+| `DB_USER`     | `adminuser`                          |
+| `DB_PASSWORD` | a te jelszavad                       |
+| `DB_NAME`     | `cloudquotes`                        |
 
-→ **Save** → App Service újraindul.
+→ **Save** → Az App Service újraindul.
 
-🎉 **Nyisd meg `http://<VM_PUBLIC_IP>` → Az idézetek megjelennek!**
+### 4.6 Tesztelés
+
+Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
+
+🎉 **Az idézetek megjelennek!** A health dashboard-on az App Service és a MySQL zöldre vált.
 
 ---
 
-## 5. lépés – Azure OpenAI (AI Chatbot)
+## 5. lépés – AI Chatbot (Azure OpenAI)
 
-### OpenAI erőforrás létrehozása
+> _(Nincs kódfájl – a backend kód a 3. lépésben már felkerült)_
+
+### 5.1 OpenAI erőforrás létrehozása
 
 Azure Portal → **Azure OpenAI** → **Create**
 
-| Beállítás | Érték |
-|---|---|
-| Resource group | `workshop-rg` |
-| Name | `quotes-openai` |
-| Region | **Sweden Central** *(itt érhető el a legtöbb modell)* |
-| Pricing tier | Standard S0 |
+| Beállítás      | Érték                                                 |
+| -------------- | ----------------------------------------------------- |
+| Resource group | `workshop-rg`                                         |
+| Name           | `quotes-openai`                                       |
+| Region         | **Sweden Central** _(itt érhető el a legtöbb modell)_ |
+| Pricing tier   | Standard S0                                           |
 
-### Deployment létrehozása (Azure AI Foundry)
+### 5.2 Modell deployment (Azure AI Foundry)
 
 OpenAI erőforrás → **Go to Azure AI Foundry** → **Deployments** → **Deploy model**
 
-| Beállítás | Érték |
-|---|---|
-| Model | `gpt-4o-mini` |
+| Beállítás       | Érték         |
+| --------------- | ------------- |
+| Model           | `gpt-4o-mini` |
 | Deployment name | `gpt-4o-mini` |
 
-### API Key és Endpoint
+### 5.3 API Key és Endpoint lekérése
 
 Azure Portal → OpenAI erőforrás → **Keys and Endpoint**
 
-- Endpoint: `https://quotes-openai.openai.azure.com/`
-- Key 1: `xxxxx…`
+- **Endpoint**: `https://quotes-openai.openai.azure.com/`
+- **Key 1**: `xxxxxxxx…`
 
-### App Service – OpenAI Application Settings
+### 5.4 ⚠️ App Service: OpenAI environment variables
 
-App Service → **Configuration** → **Application settings**:
+App Service → **Configuration** → **Application settings**
 
-| Név | Érték |
-|---|---|
-| `OPENAI_ENDPOINT` | `https://quotes-openai.openai.azure.com/` |
-| `OPENAI_KEY` | az API kulcs |
-| `OPENAI_DEPLOYMENT` | `gpt-4o-mini` |
+| Név                 | Érték                                     |
+| ------------------- | ----------------------------------------- |
+| `OPENAI_ENDPOINT`   | `https://quotes-openai.openai.azure.com/` |
+| `OPENAI_KEY`        | az API kulcs                              |
+| `OPENAI_DEPLOYMENT` | `gpt-4o-mini`                             |
 
-→ **Save**
+→ **Save** → Az App Service újraindul.
 
-🎉 **Nyisd meg az alkalmazást → A chatbot válaszol!**
+### 5.5 Tesztelés
+
+Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>` → 🤖 → kérdezz valamit!
+
+🎉 **Az AI válaszol!** A health dashboard-on az OpenAI is zöldre vált.
+
+> 💡 **Megjegyzés**: A chatbotnak nincs memóriája – minden üzenet független kérés az OpenAI felé.
+> Memóriát (konverzáció-előzmények) Azure Cosmos DB-vel lehetne implementálni, de a cél most az volt,
+> hogy lássuk milyen **egyszerű egy AI chatbotot összerakni** Azure-on.
 
 ---
 
-## 🧹 Takarítás
+## 🎉 Kész!
+
+A teljes alkalmazás működik:
+
+```
+Idézetek:  Böngésző → VM IIS → App Service → Azure MySQL
+AI Chat:   Böngésző → VM IIS → App Service → Azure OpenAI
+```
+
+---
+
+## Takarítás (Erőforrások eltávolítása a képzés után!)
 
 Azure Portal → **Resource groups** → `workshop-rg` → **Delete resource group** → gépeld be: `workshop-rg` → **Delete**
 
@@ -340,24 +358,24 @@ Minden törlődik egyszerre.
 
 ## ❓ Gyakori problémák
 
-| Probléma | Megoldás |
-|---|---|
-| App Service 500 | App Service → **Log stream** – ott látod a Python hibát |
-| MySQL connection refused | Firewall rule hozzáadva? App Service újraindult? |
-| CORS hiba | `flask-cors` telepítve és `CORS(app)` az app.py-ban? |
-| OpenAI 404 | A deployment neve pontosan egyezik? (`OPENAI_DEPLOYMENT` env var) |
-| OpenAI auth error | Trailing slash az endpoint URL végén! |
-| Frontend nem frissül | `Ctrl+Shift+R` hard reload a böngészőben |
-| GitHub deploy nem fut | Repo → Actions → nézd meg a workflow log-ot |
+| Probléma                 | Megoldás                                                               |
+| ------------------------ | ---------------------------------------------------------------------- |
+| App Service 500 hiba     | App Service → **Log stream** – ott látod a Python hibát               |
+| MySQL connection refused | Firewall rule hozzáadva? App Service újraindult a Save után?           |
+| CORS hiba böngészőben    | `flask-cors` telepítve? App Service újraindult?                        |
+| OpenAI 404               | A deployment neve pontosan egyezik az `OPENAI_DEPLOYMENT` env var-ral? |
+| OpenAI auth error        | Trailing slash az endpoint URL végén! (`…azure.com/`)                  |
+| Frontend nem frissül     | `Ctrl+Shift+R` hard reload a böngészőben                               |
+| GitHub deploy nem fut    | Repo → Actions → nézd meg a workflow log-ot                            |
+| IIS nem indul            | PowerShell → `Get-Service W3SVC`                                       |
 
 ---
 
-## 💰 Napi költség (1 workshop)
+## 💰 Költségek
 
-| Szolgáltatás | ~Napi költség |
-|---|---|
-| VM Standard_B1s | ~$0.01 |
-| App Service Free F1 | **$0** |
-| MySQL Burstable B1ms | ~$0.02 |
-| Azure OpenAI GPT-4o-mini | ~$0.01–0.05 |
-| **Összesen** | **< $0.10** |
+| Szolgáltatás               | Free tier      | Becsült költség |
+| -------------------------- | -------------- | --------------- |
+| VM Standard_B2s            | ❌             | ~$0.05/nap      |
+| App Service Free F1        | ✅             | $0              |
+| Azure MySQL Burstable B1ms | ❌             | ~$0.02/nap      |
+| Azure OpenAI GPT-4o-mini   | ❌ Pay-per-use | ~$0.01–0.05/nap |
