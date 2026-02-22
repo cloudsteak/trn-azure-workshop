@@ -201,6 +201,27 @@ App Service → **Deployment Center**
 
 → **Save**
 
+Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két sort kell módosítani**:
+
+```yaml
+# 1. sor – pip install: cd 02-Backend hozzáadása
+- name: Create and Start virtual environment and Install dependencies
+  run: |
+    cd 02-Backend          # ← ezt a sort add hozzá
+    python -m venv antenv
+    source antenv/bin/activate
+    pip install -r requirements.txt
+
+# 2. sor – artifact path: csak a 02-Backend mappa
+- name: Upload artifact for deployment jobs
+  uses: actions/upload-artifact@v4
+  with:
+    name: python-app
+    path: |
+      02-Backend/          # ← ezt módosítsd (volt: .)
+      !02-Backend/antenv/  # ← ezt módosítsd (volt: !antenv/)
+```
+
 Minden `main` branchre pusholt változtatás után az App Service automatikusan újra deployol.
 
 ### 3.4 ⚠️ Vissza a VM-re: config.js frissítése
