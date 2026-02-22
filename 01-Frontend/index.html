@@ -9,90 +9,68 @@
 <body>
 
   <header>
-    <div class="header-inner">
+    <div class="inner">
       <span class="logo">☁️</span>
       <div>
         <h1>Azure Tips of the Day</h1>
-        <p class="subtitle">1 napos Azure Workshop – Cloud Mentor</p>
+        <p class="sub">1 napos Azure Workshop – Cloud Mentor</p>
       </div>
     </div>
   </header>
 
   <main>
 
-    <!-- Health Dashboard -->
-    <section class="card" id="health-section">
+    <!-- Állapot -->
+    <section class="card">
       <h2>🩺 Szolgáltatások állapota</h2>
       <div class="health-grid">
         <div class="health-item" id="h-vm">
-          <span class="dot grey"></span>
-          <span>Azure VM (Frontend)</span>
+          <span class="dot green"></span><span>Azure VM</span>
         </div>
         <div class="health-item" id="h-app">
-          <span class="dot grey"></span>
-          <span>App Service (Backend)</span>
+          <span class="dot grey"></span><span>App Service</span>
         </div>
         <div class="health-item" id="h-db">
-          <span class="dot grey"></span>
-          <span>Azure MySQL</span>
+          <span class="dot grey"></span><span>Azure MySQL</span>
         </div>
         <div class="health-item" id="h-ai">
-          <span class="dot grey"></span>
-          <span>Azure OpenAI</span>
+          <span class="dot grey"></span><span>Azure OpenAI</span>
         </div>
       </div>
-      <button class="btn btn-secondary" onclick="checkHealth()">🔄 Frissítés</button>
+      <button class="btn secondary" onclick="checkHealth()">🔄 Frissítés</button>
     </section>
 
-    <!-- Quotes Section -->
-    <section class="card" id="quotes-section">
+    <!-- Idézetek -->
+    <section class="card">
       <h2>💬 Cloud Idézetek</h2>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="getRandomQuote()">🎲 Véletlenszerű idézet</button>
-        <button class="btn btn-secondary" onclick="getAllQuotes()">📋 Összes idézet</button>
+        <button class="btn primary" onclick="getRandomQuote()">🎲 Véletlenszerű</button>
+        <button class="btn secondary" onclick="getAllQuotes()">📋 Összes</button>
       </div>
-
-      <div id="random-quote-box" class="quote-box hidden">
-        <blockquote id="random-quote-text"></blockquote>
-        <p id="random-quote-author" class="author"></p>
-        <span id="random-quote-tag" class="tag"></span>
-      </div>
-
+      <div id="quote-box" class="quote-box hidden"></div>
       <div id="quotes-list" class="quotes-list hidden"></div>
     </section>
 
-    <!-- AI Chatbot -->
-    <section class="card" id="chat-section">
+    <!-- Chatbot -->
+    <section class="card">
       <h2>🤖 AI Asszisztens <span class="badge">Azure OpenAI</span></h2>
-      <p class="chat-hint">Kérdezz bármit a felhőről, Azure-ról vagy DevOps-ról!</p>
       <div id="chat-messages" class="chat-messages"></div>
-      <div class="chat-input-row">
-        <input
-          type="text"
-          id="chat-input"
-          placeholder="Pl. Mi az a serverless computing?"
-          onkeydown="if(event.key==='Enter') sendChat()"
-        />
-        <button class="btn btn-primary" onclick="sendChat()">Küldés ➤</button>
+      <div class="chat-row">
+        <input id="chat-input" type="text" placeholder="Kérdezz bármit a felhőről…"
+               onkeydown="if(event.key==='Enter') sendChat()" />
+        <button class="btn primary" onclick="sendChat()">Küldés ➤</button>
       </div>
     </section>
 
   </main>
 
   <footer>
-    <p>☁️ <strong>Cloud Mentor</strong> – Azure 1 napos Workshop &nbsp;|&nbsp;
-      <a href="https://github.com/cloudsteak/trn-azure-workshop" target="_blank">GitHub</a>
-    </p>
+    ☁️ <strong>Cloud Mentor</strong> – Azure Workshop &nbsp;|&nbsp;
+    <a href="https://github.com/cloudsteak/trn-azure-workshop" target="_blank">GitHub</a>
   </footer>
 
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
-  <script>
-    // Run health check on load
-    window.addEventListener('load', () => {
-      setDot('h-vm', 'green'); // VM obviously running since we're here
-      checkHealth();
-    });
-  </script>
+
 </body>
 </html>
