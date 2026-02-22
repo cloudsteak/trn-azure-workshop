@@ -90,7 +90,7 @@ def health():
 def all_quotes():
     conn = get_db()
     with conn.cursor() as cur:
-        cur.execute("SELECT id, quote, author, category FROM quotes ORDER BY id")
+        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY id")
         rows = cur.fetchall()
     conn.close()
     return jsonify({"count": len(rows), "quotes": rows})
@@ -100,7 +100,7 @@ def all_quotes():
 def random_quote():
     conn = get_db()
     with conn.cursor() as cur:
-        cur.execute("SELECT id, quote, author, category FROM quotes ORDER BY RAND() LIMIT 1")
+        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY RAND() LIMIT 1")
         row = cur.fetchone()
     conn.close()
     return jsonify(row) if row else (jsonify({"error": "Nincs idézet"}), 404)
