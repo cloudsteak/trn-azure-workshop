@@ -10,7 +10,7 @@ Egy napos, gyakorlati Azure képzés. A nap végére egy **működő webalkalmaz
 Böngésző
     │
     ▼
-Azure VM  (Ubuntu + Apache)        ← Frontend: statikus HTML/CSS/JS
+Azure VM  (Windows Server + IIS)   ← Frontend: statikus HTML/CSS/JS
     │
     ▼ (HTTPS API hívások)
 Azure App Service  (Python Flask)  ← Backend: /quotes  /chat  /health
@@ -22,7 +22,7 @@ Azure App Service  (Python Flask)  ← Backend: /quotes  /chat  /health
 
 | Szolgáltatás | Szerepe |
 |---|---|
-| **Azure Virtual Machine** | Frontend hosting (Apache) |
+| **Azure Virtual Machine** | Frontend hosting (Windows IIS) |
 | **Azure App Service** | Backend API (Python Flask) |
 | **Azure Database for MySQL** | Relational DB – idézetek |
 | **Azure OpenAI / AI Foundry** | GPT-4o-mini chatbot |
@@ -86,7 +86,7 @@ Azure Portal → **Resource groups** → **Create**
 
 ---
 
-## 2. lépés – Azure VM + Apache (Frontend)
+## 2. lépés – Azure VM + IIS (Frontend)
 
 ### VM létrehozása
 
@@ -97,45 +97,44 @@ Azure Portal → **Virtual machines** → **Create** → **Azure virtual machine
 | Resource group | `workshop-rg` |
 | Name | `frontend-vm` |
 | Region | `West Europe` |
-| Image | **Ubuntu Server 24.04 LTS** |
-| Size | **Standard_B1s** |
-| Authentication | Password |
+| Image | **Windows Server 2022 Datacenter** |
+| Size | **Standard_B2s** (2 vCPU, 4 GB – Windows igényes) |
 | Username | `azureuser` |
-| Inbound ports | **HTTP (80), SSH (22)** |
+| Password | válassz és jegyezd meg! |
+| Inbound ports | **HTTP (80), RDP (3389)** |
 
 ### Csatlakozás
 
-Azure Portal → VM → **Connect** → **Native SSH**
+Azure Portal → VM → **Connect** → **RDP** → letöltöd az RDP fájlt → megnyitod → bejelentkezel.
 
-```bash
-ssh azureuser@<VM_PUBLIC_IP>
-```
+### IIS telepítése + frontend letöltése
 
-### Apache telepítése
+A VM-en nyiss egy **PowerShell** ablakot (**Run as Administrator**), majd futtasd:
 
-```bash
-sudo apt update && sudo apt install -y apache2
-```
+```powershell
+# IIS telepítése
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
 
-Teszt: `http://<VM_PUBLIC_IP>` → Apache alapoldal jelenik meg. ✅
+# Régi default oldal törlése
+Remove-Item C:\inetpub\wwwroot\iisstart* -Force -ErrorAction SilentlyContinue
 
-### Frontend feltöltése
+# Frontend letöltése GitHub-ról
+$repo = "https://raw.githubusercontent.com/cloudsteak/trn-azure-workshop/main/frontend"
+$root = "C:\inetpub\wwwroot"
 
-```bash
-REPO="https://raw.githubusercontent.com/cloudsteak/trn-azure-workshop/main/frontend"
-W="/var/www/html"
+New-Item -ItemType Directory -Force -Path "$root\css", "$root\js" | Out-Null
 
-sudo mkdir -p $W/css $W/js
-sudo curl -so $W/index.html     $REPO/index.html
-sudo curl -so $W/css/style.css  $REPO/css/style.css
-sudo curl -so $W/js/config.js   $REPO/js/config.js
-sudo curl -so $W/js/app.js      $REPO/js/app.js
+Invoke-WebRequest "$repo/index.html"    -OutFile "$root\index.html"
+Invoke-WebRequest "$repo/css/style.css" -OutFile "$root\css\style.css"
+Invoke-WebRequest "$repo/js/config.js"  -OutFile "$root\js\config.js"
+Invoke-WebRequest "$repo/js/app.js"     -OutFile "$root\js\app.js"
 
-# Régi Apache alapoldal törlése
-sudo rm -f $W/index.html.bak
+Write-Host "Kész!" -ForegroundColor Green
 ```
 
 Teszt: `http://<VM_PUBLIC_IP>` → Az alkalmazás betölt (health piros – ez normális, nincs még backend).
+
+> 💡 A `config.js` szerkesztéséhez később: **Notepad** vagy **VS Code** a VM-en, fájl helye: `C:\inetpub\wwwroot\js\config.js`
 
 ---
 
@@ -197,9 +196,7 @@ A publish profile letöltése: App Service → **Overview** → **Get publish pr
 
 ### config.js frissítése a VM-en
 
-```bash
-sudo nano /var/www/html/js/config.js
-```
+Nyisd meg a VM-en: `C:\inetpub\wwwroot\js\config.js` (Notepad vagy VS Code)
 
 Cseréld ki `XXXXXXXXXX`-et:
 ```javascript
