@@ -76,7 +76,7 @@ graph TD
 
 - Azure előfizetés (ingyenes trial elég)
 - GitHub fiók (a backend auto-deployhoz)
-- Régió mindenhova: **West Europe**
+- Régió mindenhova: **Sweden Central**
 - **DBeaver Community** (adatbázis kezeléshez) – https://dbeaver.io/download/
 
 ---
@@ -88,7 +88,7 @@ Azure Portal → **Resource groups** → **Create**
 | Beállítás | Érték         |
 | --------- | ------------- |
 | Name      | `workshop-rg` |
-| Region    | `West Europe` |
+| Region    | `Sweden Central` |
 
 > 💡 Az összes erőforrást ide rakjuk – a végén egyetlen törlésssel mindent eltávolítunk.
 
@@ -106,10 +106,10 @@ Azure Portal → **Virtual machines** → **Create** → **Azure virtual machine
 | ------------- | ---------------------------------- |
 | Resource group| `workshop-rg`                      |
 | Name          | `frontend-vm`                      |
-| Region        | `West Europe`                      |
+| Region        | `Sweden Central`                   |
 | Image         | **Windows Server 2022 Datacenter** |
 | Size          | **Standard_B2s**                   |
-| Username      | `azureuser`                        |
+| Username      | `rendszergazda`                    |
 | Password      | válassz és jegyezd meg!            |
 | Inbound ports | **HTTP (80), RDP (3389)**          |
 
@@ -119,7 +119,23 @@ Azure Portal → VM → **Connect** → **RDP** → letöltöd az RDP fájlt →
 
 ### 2.3 IIS telepítése + frontend letöltése
 
-A VM-en nyiss egy **PowerShell** ablakot (**Run as Administrator**), majd futtasd a gyökérben lévő `setup-iis.ps1` scriptet – vagy másold be az alábbi parancsokat:
+A VM-en nyiss egy **PowerShell** ablakot (**Run as Administrator**).
+
+**1. lépés – Töltsd le a setup scriptet:**
+
+```powershell
+Invoke-WebRequest "https://raw.githubusercontent.com/cloudsteak/trn-azure-workshop/main/setup-iis.ps1" -OutFile "C:\setup-iis.ps1"
+```
+
+**2. lépés – Futtasd:**
+
+```powershell
+C:\setup-iis.ps1
+```
+
+A script elvégez mindent: telepíti az IIS-t, letölti a frontend fájlokat, és kiírja az elérési URL-t.
+
+> 💡 Ha kézzel szeretnéd elvégezni, itt a tartalom:
 
 ```powershell
 # IIS telepítése
@@ -159,7 +175,7 @@ Azure Portal → **App Services** → **Create** → **Web App**
 | Publish        | **Code**                                         |
 | Runtime        | **Python 3.12**                                  |
 | OS             | **Linux**                                        |
-| Region         | `West Europe`                                    |
+| Region         | `Sweden Central`                                 |
 | Plan           | **Free F1**                                      |
 
 ### 3.2 Startup parancs beállítása
@@ -215,7 +231,7 @@ Azure Portal → **Azure Database for MySQL Flexible Servers** → **Create**
 | -------------- | ----------------------- |
 | Resource group | `workshop-rg`           |
 | Server name    | `quotes-db` _(egyedi!)_ |
-| Region         | `West Europe`           |
+| Region         | `Sweden Central`        |
 | MySQL version  | `8.0`                   |
 | Workload type  | **Development**         |
 | Admin username | `adminuser`             |
