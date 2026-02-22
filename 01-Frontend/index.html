@@ -1,76 +1,130 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>☁️ Azure Tips of the Day</title>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☁️ Cloud Idézetek</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-  <header>
-    <div class="inner">
-      <span class="logo">☁️</span>
-      <div>
-        <h1>Azure Tips of the Day</h1>
-        <p class="sub">1 napos Azure Workshop – Cloud Mentor</p>
-      </div>
+    <div class="bg-animation">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
     </div>
-  </header>
 
-  <main>
-
-    <!-- Állapot -->
-    <section class="card">
-      <h2>🩺 Szolgáltatások állapota</h2>
-      <div class="health-grid">
-        <div class="health-item" id="h-vm">
-          <span class="dot green"></span><span>Azure VM</span>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">☁️</div>
+            <h1>Cloud Idézetek</h1>
+            <p>Inspiráló tech idézetek – Azure-ral megvalósítva</p>
+            <div class="tech-badges">
+                <span class="badge">🖥️ VM + IIS</span>
+                <span class="badge">⚙️ App Service</span>
+                <span class="badge">🗄️ Azure MySQL</span>
+                <span class="badge">🤖 Azure OpenAI</span>
+            </div>
         </div>
-        <div class="health-item" id="h-app">
-          <span class="dot grey"></span><span>App Service</span>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="quote-card" id="quoteCard">
+            <div class="quote-mark">"</div>
+            <div class="quote-text" id="quoteText">Betöltés...</div>
+            <div class="quote-author" id="quoteAuthor"></div>
+            <div class="quote-category" id="quoteCategory" style="display:none;"></div>
         </div>
-        <div class="health-item" id="h-db">
-          <span class="dot grey"></span><span>Azure MySQL</span>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="loadRandomQuote()">🎲 Új idézet</button>
+            <button class="btn btn-secondary" data-cat="tech" onclick="filterCategory(this)">💻 Tech</button>
+            <button class="btn btn-secondary" data-cat="cloud" onclick="filterCategory(this)">☁️ Cloud</button>
+            <button class="btn btn-secondary" data-cat="motivation" onclick="filterCategory(this)">🚀 Motiváció</button>
+            <button class="btn btn-secondary" data-cat="" onclick="filterCategory(this)">📋 Összes</button>
         </div>
-        <div class="health-item" id="h-ai">
-          <span class="dot grey"></span><span>Azure OpenAI</span>
+
+        <details class="quotes-collapsible" id="quotesCollapsible">
+            <summary class="section-title">📚 Összes idézet</summary>
+            <div class="quotes-grid" id="quotesGrid"></div>
+        </details>
+
+        <!-- Architecture -->
+        <div class="arch-section">
+            <h2>🏗️ Architektúra</h2>
+            <p class="arch-label">Idézetek:</p>
+            <div class="arch-flow">
+                <div class="arch-box"><div class="icon">👤</div><div class="label">Böngésző</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box"><div class="icon">🖥️</div><div class="label">Azure VM</div><div class="sub">IIS Frontend</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box"><div class="icon">⚙️</div><div class="label">App Service</div><div class="sub">Flask API</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box"><div class="icon">🗄️</div><div class="label">Azure MySQL</div></div>
+            </div>
+            <hr style="margin: 0 auto; width: 150px;">
+            <p class="arch-label" style="margin-top: 24px;">AI Chatbot:</p>
+            <div class="arch-flow">
+                <div class="arch-box"><div class="icon">💬</div><div class="label">Chat ablak</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box"><div class="icon">⚙️</div><div class="label">App Service</div><div class="sub">Flask API</div></div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box"><div class="icon">🤖</div><div class="label">Azure OpenAI</div><div class="sub">GPT-4o-mini</div></div>
+            </div>
         </div>
-      </div>
-      <button class="btn secondary" onclick="checkHealth()">🔄 Frissítés</button>
-    </section>
 
-    <!-- Idézetek -->
-    <section class="card">
-      <h2>💬 Cloud Idézetek</h2>
-      <div class="btn-row">
-        <button class="btn primary" onclick="getRandomQuote()">🎲 Véletlenszerű</button>
-        <button class="btn secondary" onclick="getAllQuotes()">📋 Összes</button>
-      </div>
-      <div id="quote-box" class="quote-box hidden"></div>
-      <div id="quotes-list" class="quotes-list hidden"></div>
-    </section>
+        <!-- Health Dashboard -->
+        <div class="health-section">
+            <h2>📡 Szolgáltatások állapota</h2>
+            <p class="health-subtitle">Minden komponens állapota valós időben</p>
+            <div class="health-grid">
+                <div class="health-card" id="health-vm">
+                    <div class="h-header"><span class="h-dot"></span><span class="h-name">🖥️ Azure VM + IIS</span></div>
+                    <div class="h-detail">Ellenőrzés...</div>
+                </div>
+                <div class="health-card" id="health-app">
+                    <div class="h-header"><span class="h-dot"></span><span class="h-name">⚙️ App Service</span></div>
+                    <div class="h-detail">Ellenőrzés...</div>
+                </div>
+                <div class="health-card" id="health-db">
+                    <div class="h-header"><span class="h-dot"></span><span class="h-name">🗄️ Azure MySQL</span></div>
+                    <div class="h-detail">Ellenőrzés...</div>
+                </div>
+                <div class="health-card" id="health-ai">
+                    <div class="h-header"><span class="h-dot"></span><span class="h-name">🤖 Azure OpenAI</span></div>
+                    <div class="h-detail">Ellenőrzés...</div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="checkHealth()" style="margin-top:16px;">🔄 Újra ellenőrzés</button>
+        </div>
+    </div>
 
-    <!-- Chatbot -->
-    <section class="card">
-      <h2>🤖 AI Asszisztens <span class="badge">Azure OpenAI</span></h2>
-      <div id="chat-messages" class="chat-messages"></div>
-      <div class="chat-row">
-        <input id="chat-input" type="text" placeholder="Kérdezz bármit a felhőről…"
-               onkeydown="if(event.key==='Enter') sendChat()" />
-        <button class="btn primary" onclick="sendChat()">Küldés ➤</button>
-      </div>
-    </section>
+    <!-- Floating chatbot -->
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()">🤖</button>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-icon">🤖</div>
+            <div class="chat-header-text">
+                <h3>Cloud Mentor AI</h3>
+                <p>Powered by Azure OpenAI (GPT-4o-mini)</p>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg ai">
+                Szia! 👋 Cloud Mentor AI vagyok.<br><br>
+                Kérdezz bármit a felhő technológiákról, Azure szolgáltatásokról, vagy a szoftverfejlesztésről!
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput"
+                   placeholder="Kérdezz valamit..."
+                   onkeydown="if(event.key==='Enter') sendChat()">
+            <button class="chat-send" id="chatSend" onclick="sendChat()">➤</button>
+        </div>
+        <div class="powered-by">Azure OpenAI + GPT-4o-mini | Azure Workshop</div>
+    </div>
 
-  </main>
-
-  <footer>
-    ☁️ <strong>Cloud Mentor</strong> – Azure Workshop &nbsp;|&nbsp;
-    <a href="https://github.com/cloudsteak/trn-azure-workshop" target="_blank">GitHub</a>
-  </footer>
-
-  <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
-
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
