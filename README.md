@@ -180,10 +180,10 @@ Azure Portal → **App Services** → **Create** → **Web App**
 
 ### 3.2 Startup parancs beállítása
 
-App Service → **Configuration** → **General settings** → **Startup Command**:
+App Service → **Configuration** → **Stack settings** → **Startup Command**:
 
 ```
-gunicorn --bind 0.0.0.0:8000 --timeout 60 app:app
+gunicorn --bind 0.0.0.0 --timeout 230 app:app
 ```
 
 → **Save**
