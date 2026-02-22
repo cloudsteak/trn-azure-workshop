@@ -1,135 +1,129 @@
-const BASE = CONFIG.BACKEND_URL.replace(/\/$/, '');
+"""
+Azure Tips of the Day - Backend API
+Azure App Service (Python 3.12)
 
-let currentCategory = '';
+Szukseges kornyezeti valtozok (Azure Portal -> App Service -> Configuration -> Environment variables):
+  DB_HOST            Azure MySQL Flexible Server hostname
+  DB_PORT            3306
+  DB_USER            MySQL felhasznalonev (pl. adminuser)
+  DB_PASSWORD        MySQL jelszo
+  DB_NAME            cloudquotes
+  OPENAI_ENDPOINT    https://<eroforras>.openai.azure.com/
+  OPENAI_KEY         Azure OpenAI API kulcs
+  OPENAI_DEPLOYMENT  deployment neve (pl. gpt-4o-mini)
+"""
 
-async function api(path, opts = {}) {
-    const res = await fetch(BASE + path, opts);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+import os
+import logging
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import pymysql
+from openai import AzureOpenAI
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+
+app = Flask(__name__)
+CORS(app)
+
+# ── DB ────────────────────────────────────────────────────────────────────
+
+DB = {
+    "host":         os.environ["DB_HOST"],
+    "port":         int(os.environ.get("DB_PORT", 3306)),
+    "user":         os.environ["DB_USER"],
+    "password":     os.environ["DB_PASSWORD"],
+    "database":     os.environ.get("DB_NAME", "cloudquotes"),
+    "ssl":          {"ssl_disabled": False},
+    "connect_timeout": 10,
+    "cursorclass":  pymysql.cursors.DictCursor,
 }
 
-// ── Quotes ────────────────────────────────────────────────────────────────
+def get_db():
+    return pymysql.connect(**DB)
 
-async function loadRandomQuote() {
-    const textEl   = document.getElementById('quoteText');
-    const authorEl = document.getElementById('quoteAuthor');
-    const errorEl  = document.getElementById('errorMsg');
-    errorEl.textContent = '';
-    textEl.textContent  = 'Betöltés...';
-    authorEl.textContent = '';
+# ── OpenAI ────────────────────────────────────────────────────────────────
 
-    try {
-        const path = currentCategory
-            ? `/quotes/random?category=${currentCategory}`
-            : '/quotes/random';
-        const q = await api(path);
-        textEl.textContent   = q.text;
-        authorEl.textContent = '— ' + q.author;
-    } catch (e) {
-        errorEl.textContent = 'Nem sikerült betölteni az idézetet. Ellenőrizd a backend URL-t.';
-    }
-}
+def openai_client():
+    return AzureOpenAI(
+        azure_endpoint = os.environ["OPENAI_ENDPOINT"],
+        api_key        = os.environ["OPENAI_KEY"],
+        api_version    = "2024-02-01",
+    )
 
-async function filterCategory(btn) {
-    document.querySelectorAll('.controls .btn-secondary').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCategory = btn.dataset.cat;
-    await loadRandomQuote();
-    if (document.getElementById('quotesCollapsible').open) {
-        await loadAllQuotes();
-    }
-}
+DEPLOYMENT = os.environ.get("OPENAI_DEPLOYMENT", "gpt-4o-mini")
 
-async function loadAllQuotes() {
-    const grid = document.getElementById('quotesGrid');
-    grid.innerHTML = '<p style="color:var(--muted);padding:1rem">Betöltés...</p>';
-    try {
-        const path = currentCategory ? `/quotes?category=${currentCategory}` : '/quotes';
-        const data = await api(path);
-        grid.innerHTML = data.quotes.map(q => `
-            <div class="quote-item">
-                <div class="qi-text">"${q.text}"</div>
-                <div class="qi-author">— ${q.author}</div>
-                <span class="qi-cat">${q.category}</span>
-            </div>
-        `).join('');
-    } catch (e) {
-        grid.innerHTML = '<p style="color:#f85149;padding:1rem">Hiba a betöltés során.</p>';
-    }
-}
+SYSTEM = (
+    "Te egy tapasztalt Azure cloud architect es trainer vagy. "
+    "Segites megerteni az Azure szolgaltatasokat. "
+    "Valaszolj magyarul, tomoren es erthetoen."
+)
 
-document.getElementById('quotesCollapsible').addEventListener('toggle', function () {
-    if (this.open) loadAllQuotes();
-});
+# ── Routes ────────────────────────────────────────────────────────────────
 
-// ── Health ────────────────────────────────────────────────────────────────
+@app.get("/health")
+def health():
+    result = {"app": "ok", "db": "error", "openai": "error"}
 
-function setHealth(id, status, detail) {
-    const card = document.getElementById(id);
-    if (!card) return;
-    const dot    = card.querySelector('.h-dot');
-    const detEl  = card.querySelector('.h-detail');
-    dot.className = 'h-dot ' + (status === 'ok' ? 'ok' : status === 'checking' ? '' : 'error');
-    detEl.textContent = detail;
-}
+    try:
+        conn = get_db()
+        conn.cursor().execute("SELECT 1")
+        conn.close()
+        result["db"] = "ok"
+    except Exception as e:
+        log.warning("DB health: %s", e)
 
-async function checkHealth() {
-    ['health-vm','health-app','health-db','health-ai'].forEach(id =>
-        setHealth(id, 'checking', 'Ellenőrzés...')
-    );
-    setHealth('health-vm', 'ok', 'Fut – ez az oldal is itt van');
+    try:
+        openai_client().chat.completions.create(
+            model      = DEPLOYMENT,
+            messages   = [{"role": "user", "content": "ping"}],
+            max_tokens = 1,
+        )
+        result["openai"] = "ok"
+    except Exception as e:
+        log.warning("OpenAI health: %s", e)
 
-    try {
-        const d = await api('/health');
-        setHealth('health-app', d.app    === 'ok' ? 'ok' : 'error', d.app    === 'ok' ? 'Elérhető' : 'Nem elérhető');
-        setHealth('health-db',  d.db     === 'ok' ? 'ok' : 'error', d.db     === 'ok' ? 'Kapcsolódva' : 'Kapcsolódási hiba');
-        setHealth('health-ai',  d.openai === 'ok' ? 'ok' : 'error', d.openai === 'ok' ? 'Elérhető' : 'Nem elérhető');
-    } catch {
-        ['health-app','health-db','health-ai'].forEach(id =>
-            setHealth(id, 'error', 'Nem elérhető')
-        );
-    }
-}
+    return jsonify(result), 200
 
-// ── Chat ──────────────────────────────────────────────────────────────────
 
-function toggleChat() {
-    const win = document.getElementById('chatWindow');
-    win.classList.toggle('open');
-}
+@app.get("/quotes")
+def all_quotes():
+    conn = get_db()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY id")
+        rows = cur.fetchall()
+    conn.close()
+    return jsonify({"count": len(rows), "quotes": rows})
 
-function addMsg(text, role) {
-    const c = document.getElementById('chatMessages');
-    const d = document.createElement('div');
-    d.className = 'chat-msg ' + role;
-    d.innerHTML = text;
-    c.appendChild(d);
-    c.scrollTop = c.scrollHeight;
-    return d;
-}
 
-async function sendChat() {
-    const inp = document.getElementById('chatInput');
-    const msg = inp.value.trim();
-    if (!msg) return;
-    inp.value = '';
-    addMsg(msg, 'user');
-    const t = addMsg('<em>Gondolkodom...</em>', 'ai');
-    try {
-        const data = await api('/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: msg })
-        });
-        t.innerHTML = data.reply.replace(/\n/g, '<br>');
-    } catch {
-        t.innerHTML = '❌ Nem sikerült kapcsolódni az AI-hoz.';
-    }
-}
+@app.get("/quotes/random")
+def random_quote():
+    conn = get_db()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY RAND() LIMIT 1")
+        row = cur.fetchone()
+    conn.close()
+    return jsonify(row) if row else (jsonify({"error": "Nincs idezet"}), 404)
 
-// ── Init ──────────────────────────────────────────────────────────────────
 
-window.addEventListener('load', () => {
-    loadRandomQuote();
-    checkHealth();
-});
+@app.post("/chat")
+def chat():
+    body    = request.get_json(silent=True) or {}
+    message = (body.get("message") or "").strip()
+    if not message:
+        return jsonify({"error": "Ures uzenet"}), 400
+
+    resp = openai_client().chat.completions.create(
+        model       = DEPLOYMENT,
+        messages    = [
+            {"role": "system", "content": SYSTEM},
+            {"role": "user",   "content": message},
+        ],
+        max_tokens  = 500,
+        temperature = 0.7,
+    )
+    return jsonify({"reply": resp.choices[0].message.content})
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

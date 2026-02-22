@@ -300,16 +300,21 @@ SSL tab: **Use SSL** ✅
 
 ### 4.5 ⚠️ App Service: environment variables beállítása
 
-App Service → **Configuration** → **Application settings** → **New application setting**
+App Service → **Configuration** → **Environment variables** → **+ Add**
 
-| Név           | Érték                                |
+Add hozzá egyenként az alábbi változókat:
+
+| Name          | Value                                |
 | ------------- | ------------------------------------ |
 | `DB_HOST`     | `quotes-db.mysql.database.azure.com` |
+| `DB_PORT`     | `3306`                               |
 | `DB_USER`     | `adminuser`                          |
 | `DB_PASSWORD` | a te jelszavad                       |
 | `DB_NAME`     | `cloudquotes`                        |
 
-→ **Save** → Az App Service újraindul.
+Minden sor után **+ Add**, majd az összes hozzáadása után → **Apply** → **Confirm** → **Save**
+
+> ⚠️ A Save után az App Service automatikusan újraindul.
 
 ### 4.6 Tesztelés
 
@@ -352,15 +357,17 @@ Azure Portal → OpenAI erőforrás → **Keys and Endpoint**
 
 ### 5.4 ⚠️ App Service: OpenAI environment variables
 
-App Service → **Configuration** → **Application settings**
+App Service → **Configuration** → **Environment variables** → **+ Add**
 
-| Név                 | Érték                                     |
+| Name                | Value                                     |
 | ------------------- | ----------------------------------------- |
 | `OPENAI_ENDPOINT`   | `https://quotes-openai.openai.azure.com/` |
 | `OPENAI_KEY`        | az API kulcs                              |
 | `OPENAI_DEPLOYMENT` | `gpt-4o-mini`                             |
 
-→ **Save** → Az App Service újraindul.
+Minden sor után **+ Add**, majd → **Apply** → **Confirm** → **Save**
+
+> ⚠️ A Save után az App Service automatikusan újraindul.
 
 ### 5.5 Tesztelés
 
