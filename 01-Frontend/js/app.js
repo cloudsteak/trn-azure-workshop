@@ -28,30 +28,29 @@ CORS(app)
 
 # ── DB ────────────────────────────────────────────────────────────────────
 
-DB = {
-    "host":         os.environ["DB_HOST"],
-    "port":         int(os.environ.get("DB_PORT", 3306)),
-    "user":         os.environ["DB_USER"],
-    "password":     os.environ["DB_PASSWORD"],
-    "database":     os.environ.get("DB_NAME", "cloudquotes"),
-    "ssl":          {"ssl_disabled": False},
-    "connect_timeout": 10,
-    "cursorclass":  pymysql.cursors.DictCursor,
-}
-
 def get_db():
-    return pymysql.connect(**DB)
+    return pymysql.connect(
+        host            = os.environ.get("DB_HOST", ""),
+        port            = int(os.environ.get("DB_PORT", 3306)),
+        user            = os.environ.get("DB_USER", ""),
+        password        = os.environ.get("DB_PASSWORD", ""),
+        database        = os.environ.get("DB_NAME", "cloudquotes"),
+        ssl             = {"ssl_disabled": False},
+        connect_timeout = 10,
+        cursorclass     = pymysql.cursors.DictCursor,
+    )
 
 # ── OpenAI ────────────────────────────────────────────────────────────────
 
 def openai_client():
     return AzureOpenAI(
-        azure_endpoint = os.environ["OPENAI_ENDPOINT"],
-        api_key        = os.environ["OPENAI_KEY"],
+        azure_endpoint = os.environ.get("OPENAI_ENDPOINT", ""),
+        api_key        = os.environ.get("OPENAI_KEY", ""),
         api_version    = "2024-02-01",
     )
 
-DEPLOYMENT = os.environ.get("OPENAI_DEPLOYMENT", "gpt-4o-mini")
+def openai_deployment():
+    return os.environ.get("OPENAI_DEPLOYMENT", "gpt-4o-mini")
 
 SYSTEM = (
     "Te egy tapasztalt Azure cloud architect es trainer vagy. "
@@ -75,7 +74,7 @@ def health():
 
     try:
         openai_client().chat.completions.create(
-            model      = DEPLOYMENT,
+            model      = openai_deployment(),
             messages   = [{"role": "user", "content": "ping"}],
             max_tokens = 1,
         )
@@ -114,7 +113,7 @@ def chat():
         return jsonify({"error": "Ures uzenet"}), 400
 
     resp = openai_client().chat.completions.create(
-        model       = DEPLOYMENT,
+        model       = openai_deployment(),
         messages    = [
             {"role": "system", "content": SYSTEM},
             {"role": "user",   "content": message},
