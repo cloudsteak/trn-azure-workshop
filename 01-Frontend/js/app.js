@@ -1,128 +1,217 @@
-"""
-Azure Tips of the Day - Backend API
-Azure App Service (Python 3.12)
+const state = {
+    quotes: [],
+    activeCategory: '',
+    chatOpen: false,
+};
 
-Szukseges kornyezeti valtozok (Azure Portal -> App Service -> Configuration -> Environment variables):
-  DB_HOST            Azure MySQL Flexible Server hostname
-  DB_PORT            3306
-  DB_USER            MySQL felhasznalonev (pl. adminuser)
-  DB_PASSWORD        MySQL jelszo
-  DB_NAME            cloudquotes
-  OPENAI_ENDPOINT    https://<eroforras>.openai.azure.com/
-  OPENAI_KEY         Azure OpenAI API kulcs
-  OPENAI_DEPLOYMENT  deployment neve (pl. gpt-4o-mini)
-"""
+function apiUrl(path) {
+    const base = (CONFIG?.BACKEND_URL || '').replace(/\/$/, '');
+    return `${base}${path}`;
+}
 
-import os
-import logging
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import pymysql
-from openai import AzureOpenAI
+function setError(message = '') {
+    const el = document.getElementById('errorMsg');
+    if (!el) return;
+    el.textContent = message;
+}
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
+function setHealthCard(id, ok, detail) {
+    const card = document.getElementById(id);
+    if (!card) return;
 
-app = Flask(__name__)
-CORS(app)
+    const dot = card.querySelector('.h-dot');
+    const text = card.querySelector('.h-detail');
 
-# ── DB ────────────────────────────────────────────────────────────────────
+    if (dot) {
+        dot.classList.remove('ok', 'error');
+        dot.classList.add(ok ? 'ok' : 'error');
+    }
 
-def get_db():
-    return pymysql.connect(
-        host            = os.environ.get("DB_HOST", ""),
-        port            = int(os.environ.get("DB_PORT", 3306)),
-        user            = os.environ.get("DB_USER", ""),
-        password        = os.environ.get("DB_PASSWORD", ""),
-        database        = os.environ.get("DB_NAME", "cloudquotes"),
-        ssl             = {"ssl_disabled": False},
-        connect_timeout = 10,
-        cursorclass     = pymysql.cursors.DictCursor,
-    )
+    if (text) {
+        text.textContent = detail;
+    }
+}
 
-# ── OpenAI ────────────────────────────────────────────────────────────────
+function updateMainQuote(quote) {
+    const textEl = document.getElementById('quoteText');
+    const authorEl = document.getElementById('quoteAuthor');
+    const categoryEl = document.getElementById('quoteCategory');
 
-def openai_client():
-    return AzureOpenAI(
-        azure_endpoint = os.environ.get("OPENAI_ENDPOINT", ""),
-        api_key        = os.environ.get("OPENAI_KEY", ""),
-        api_version    = "2024-02-01",
-    )
+    if (!quote) {
+        textEl.textContent = 'Nincs elérhető idézet';
+        authorEl.textContent = '';
+        categoryEl.style.display = 'none';
+        return;
+    }
 
-def openai_deployment():
-    return os.environ.get("OPENAI_DEPLOYMENT", "gpt-4o-mini")
+    textEl.textContent = quote.text || '—';
+    authorEl.textContent = quote.author ? `— ${quote.author}` : '';
 
-SYSTEM = (
-    "Te egy tapasztalt Azure cloud architect es trainer vagy. "
-    "Segites megerteni az Azure szolgaltatasokat. "
-    "Valaszolj magyarul, tomoren es erthetoen."
-)
+    if (quote.category) {
+        categoryEl.style.display = 'inline-block';
+        categoryEl.textContent = quote.category;
+    } else {
+        categoryEl.style.display = 'none';
+    }
+}
 
-# ── Routes ────────────────────────────────────────────────────────────────
+function renderQuotesGrid() {
+    const grid = document.getElementById('quotesGrid');
+    if (!grid) return;
 
-@app.get("/health")
-def health():
-    result = {"app": "ok", "db": "error", "openai": "error"}
+    const items = state.activeCategory
+        ? state.quotes.filter((q) => q.category === state.activeCategory)
+        : state.quotes;
 
-    try:
-        conn = get_db()
-        conn.cursor().execute("SELECT 1")
-        conn.close()
-        result["db"] = "ok"
-    except Exception as e:
-        log.warning("DB health: %s", e)
+    if (!items.length) {
+        grid.innerHTML = '<div class="quote-item"><div class="qi-text">Nincs találat.</div></div>';
+        return;
+    }
 
-    try:
-        openai_client().chat.completions.create(
-            model      = openai_deployment(),
-            messages   = [{"role": "user", "content": "ping"}],
-            max_tokens = 1,
-        )
-        result["openai"] = "ok"
-    except Exception as e:
-        log.warning("OpenAI health: %s", e)
+    grid.innerHTML = items
+        .map((q) => `
+            <div class="quote-item">
+                <div class="qi-text">“${q.text || ''}”</div>
+                <div class="qi-author">— ${q.author || 'Ismeretlen'}</div>
+                <span class="qi-cat">${q.category || 'egyéb'}</span>
+            </div>
+        `)
+        .join('');
+}
 
-    return jsonify(result), 200
+async function loadAllQuotes() {
+    const response = await fetch(apiUrl('/quotes'));
+    if (!response.ok) {
+        throw new Error('Nem sikerült lekérni az idézeteket.');
+    }
 
+    const payload = await response.json();
+    state.quotes = Array.isArray(payload.quotes) ? payload.quotes : [];
+    renderQuotesGrid();
+}
 
-@app.get("/quotes")
-def all_quotes():
-    conn = get_db()
-    with conn.cursor() as cur:
-        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY id")
-        rows = cur.fetchall()
-    conn.close()
-    return jsonify({"count": len(rows), "quotes": rows})
+async function loadRandomQuote() {
+    try {
+        setError('');
+        const response = await fetch(apiUrl('/quotes/random'));
+        if (!response.ok) {
+            throw new Error('Nem sikerült random idézetet kérni.');
+        }
 
+        const quote = await response.json();
+        updateMainQuote(quote);
+    } catch (error) {
+        updateMainQuote(null);
+        setError(error.message || 'Hiba történt az idézet lekérésekor.');
+    }
+}
 
-@app.get("/quotes/random")
-def random_quote():
-    conn = get_db()
-    with conn.cursor() as cur:
-        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY RAND() LIMIT 1")
-        row = cur.fetchone()
-    conn.close()
-    return jsonify(row) if row else (jsonify({"error": "Nincs idezet"}), 404)
+function filterCategory(button) {
+    const category = button?.dataset?.cat ?? '';
+    state.activeCategory = category;
 
+    document.querySelectorAll('.btn[data-cat]').forEach((btn) => {
+        btn.classList.toggle('active', btn === button);
+    });
 
-@app.post("/chat")
-def chat():
-    body    = request.get_json(silent=True) or {}
-    message = (body.get("message") or "").strip()
-    if not message:
-        return jsonify({"error": "Ures uzenet"}), 400
+    renderQuotesGrid();
+}
 
-    resp = openai_client().chat.completions.create(
-        model       = openai_deployment(),
-        messages    = [
-            {"role": "system", "content": SYSTEM},
-            {"role": "user",   "content": message},
-        ],
-        max_tokens  = 500,
-        temperature = 0.7,
-    )
-    return jsonify({"reply": resp.choices[0].message.content})
+function appendChatMessage(text, role) {
+    const wrap = document.getElementById('chatMessages');
+    if (!wrap) return;
 
+    const msg = document.createElement('div');
+    msg.className = `chat-msg ${role}`;
+    msg.textContent = text;
+    wrap.appendChild(msg);
+    wrap.scrollTop = wrap.scrollHeight;
+}
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSend');
+    const message = (input?.value || '').trim();
+    if (!message) return;
+
+    input.value = '';
+    appendChatMessage(message, 'user');
+
+    try {
+        sendBtn.disabled = true;
+        const response = await fetch(apiUrl('/chat'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message }),
+        });
+
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload?.error || 'A chat szolgáltatás nem elérhető.');
+        }
+
+        appendChatMessage(payload.reply || 'Nincs válasz.', 'ai');
+    } catch (error) {
+        appendChatMessage(error.message || 'Hiba történt a chat során.', 'ai');
+    } finally {
+        sendBtn.disabled = false;
+        input.focus();
+    }
+}
+
+function toggleChat() {
+    const win = document.getElementById('chatWindow');
+    if (!win) return;
+
+    state.chatOpen = !state.chatOpen;
+    win.classList.toggle('open', state.chatOpen);
+}
+
+async function checkHealth() {
+    setHealthCard('health-vm', true, 'Frontend betöltve (IIS)');
+
+    const backendUrl = (CONFIG?.BACKEND_URL || '').trim();
+    if (!backendUrl || backendUrl.includes('XXXXXXXXXX')) {
+        setHealthCard('health-app', false, 'BACKEND_URL nincs beállítva');
+        setHealthCard('health-db', false, 'Backend nem elérhető');
+        setHealthCard('health-ai', false, 'Backend nem elérhető');
+        setError('Állítsd be a js/config.js fájlban a BACKEND_URL értékét az App Service URL-re.');
+        return;
+    }
+
+    try {
+        const response = await fetch(apiUrl('/health'));
+        if (!response.ok) {
+            throw new Error('A health endpoint hibát adott vissza.');
+        }
+
+        const data = await response.json();
+        setHealthCard('health-app', data.app === 'ok', data.app === 'ok' ? 'API működik' : 'API hiba');
+        setHealthCard('health-db', data.db === 'ok', data.db === 'ok' ? 'MySQL elérhető' : 'MySQL hiba');
+        setHealthCard('health-ai', data.openai === 'ok', data.openai === 'ok' ? 'OpenAI elérhető' : 'OpenAI hiba');
+    } catch (error) {
+        setHealthCard('health-app', false, 'App Service nem elérhető');
+        setHealthCard('health-db', false, 'Nincs backend kapcsolat');
+        setHealthCard('health-ai', false, 'Nincs backend kapcsolat');
+        setError(error.message || 'Nem sikerült kapcsolódni a backendhez.');
+    }
+}
+
+async function initialize() {
+    try {
+        await loadAllQuotes();
+        await loadRandomQuote();
+    } catch (error) {
+        setError(error.message || 'Hiba történt az inicializáláskor.');
+    } finally {
+        await checkHealth();
+    }
+}
+
+window.loadRandomQuote = loadRandomQuote;
+window.filterCategory = filterCategory;
+window.sendChat = sendChat;
+window.toggleChat = toggleChat;
+window.checkHealth = checkHealth;
+
+document.addEventListener('DOMContentLoaded', initialize);
