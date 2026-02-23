@@ -202,7 +202,7 @@ App Service → **Deployment Center**
 
 → **Mentés**
 
-Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **három helyen kell módosítani**:
+Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **négy helyen kell módosítani**:
 
 ```yaml
 # 1. sor – pip install: cd 02-Backend hozzáadása
@@ -223,6 +223,13 @@ Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.ym
       !02-Backend/antenv/  # ← ezt módosítsd (volt: !antenv/)
 
 # 3. sor – deploy package path: a backend mappa gyökérként menjen fel
+- name: Download artifact from build job
+  uses: actions/download-artifact@v4
+  with:
+    name: python-app
+    path: 02-Backend        # ← ezt add hozzá
+
+# 4. sor – deploy package path: a backend mappa gyökérként menjen fel
 - name: 'Deploy to Azure Web App'
   uses: azure/webapps-deploy@v3
   with:
