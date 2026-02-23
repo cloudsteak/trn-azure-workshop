@@ -65,7 +65,7 @@ graph TD
 | #   | Lépés                                        | Működik utána?            |
 | --- | -------------------------------------------- | ------------------------- |
 | 1   | Azure VM + IIS + frontend feltöltés          | ❌ (nincs backend URL)    |
-| 2   | App Service létrehozása + GitHub deploy       | ❌ (nincs DB, nincs AI)   |
+| 2   | App Service létrehozása + GitHub deploy      | ❌ (nincs DB, nincs AI)   |
 | 3   | config.js frissítése az App Service URL-jére | ❌ (nincs DB)             |
 | 4   | Azure MySQL + init.sql + env vars            | ✅ Idézetek működnek!     |
 | 5   | Azure OpenAI deployment + env vars           | ✅ AI chatbot is működik! |
@@ -85,9 +85,9 @@ graph TD
 
 Azure Portal → **Resource groups** → **Create**
 
-| Beállítás | Érték         |
-| --------- | ------------- |
-| Name      | `workshop-rg` |
+| Beállítás | Érték            |
+| --------- | ---------------- |
+| Name      | `workshop-rg`    |
 | Region    | `Sweden Central` |
 
 > 💡 Az összes erőforrást ide rakjuk – a végén egyetlen törlésssel mindent eltávolítunk.
@@ -102,16 +102,17 @@ Azure Portal → **Resource groups** → **Create**
 
 Azure Portal → **Virtual machines** → **Create** → **Azure virtual machine**
 
-| Beállítás     | Érték                              |
-| ------------- | ---------------------------------- |
-| Resource group| `workshop-rg`                      |
-| Name          | `frontend-vm`                      |
-| Region        | `Sweden Central`                   |
-| Image         | **Windows Server 2022 Datacenter** |
-| Size          | **Standard_B2s**                   |
-| Username      | `rendszergazda`                    |
-| Password      | válassz és jegyezd meg!            |
-| Inbound ports | **HTTP (80), RDP (3389)**          |
+| Beállítás      | Érték                                         |
+| -------------- | --------------------------------------------- |
+| Resource group | `workshop-rg`                                 |
+| Name           | `frontend-vm`                                 |
+| Region         | `Sweden Central`                              |
+| Image          | **Windows Server 2022 Datacenter**            |
+| Size           | **Standard_B2s**                              |
+| Username       | `rendszergazda`                               |
+| Password       | válassz és jegyezd meg!                       |
+| Inbound ports  | **HTTP (80), RDP (3389)**                     |
+| Public IP      | **Igen**, hozzunk létre egyet (hálózat fülön) |
 
 ### 2.2 Csatlakozás
 
@@ -232,7 +233,7 @@ Cseréld ki az `XXXXXXXXXX`-et:
 
 ```javascript
 const CONFIG = {
-  BACKEND_URL: 'https://azure-quotes-api.azurewebsites.net'
+  BACKEND_URL: "https://azure-quotes-api.azurewebsites.net",
 };
 ```
 
@@ -259,6 +260,7 @@ Azure Portal → **Azure Database for MySQL Flexible Servers** → **Create**
 | Password       | válassz és jegyezd meg! |
 
 **Networking tab:**
+
 - Connectivity method: **Public access**
 - ✅ Add current client IP address
 
@@ -404,7 +406,7 @@ Minden törlődik egyszerre.
 
 | Probléma                 | Megoldás                                                               |
 | ------------------------ | ---------------------------------------------------------------------- |
-| App Service 500 hiba     | App Service → **Log stream** – ott látod a Python hibát               |
+| App Service 500 hiba     | App Service → **Log stream** – ott látod a Python hibát                |
 | MySQL connection refused | Firewall rule hozzáadva? App Service újraindult a Save után?           |
 | CORS hiba böngészőben    | `flask-cors` telepítve? App Service újraindult?                        |
 | OpenAI 404               | A deployment neve pontosan egyezik az `OPENAI_DEPLOYMENT` env var-ral? |
