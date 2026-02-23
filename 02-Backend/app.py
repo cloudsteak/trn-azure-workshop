@@ -27,15 +27,23 @@ log = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
+REQUIRED_DB_ENV = ["DB_HOST", "DB_USER", "DB_PASSWORD"]
+REQUIRED_OPENAI_ENV = ["OPENAI_ENDPOINT", "OPENAI_KEY", "OPENAI_DEPLOYMENT"]
+
+
+def missing_env_vars(names):
+    return [name for name in names if not os.environ.get(name)]
+
 # ── DB ────────────────────────────────────────────────────────────────────
 
 def db_config():
+    missing = missing_env_vars(REQUIRED_DB_ENV)
+    if missing:
+        raise RuntimeError(f"Hiányzó DB konfiguráció: {', '.join(missing)}")
+
     host = os.environ.get("DB_HOST", "")
     user = os.environ.get("DB_USER", "")
     password = os.environ.get("DB_PASSWORD", "")
-
-    if not host or not user or not password:
-        raise RuntimeError("Hiányzó DB konfiguráció: DB_HOST/DB_USER/DB_PASSWORD")
 
     return {
         "host": host,
@@ -54,11 +62,12 @@ def get_db():
 # ── OpenAI ────────────────────────────────────────────────────────────────
 
 def openai_client():
+    missing = missing_env_vars(["OPENAI_ENDPOINT", "OPENAI_KEY"])
+    if missing:
+        raise RuntimeError(f"Hiányzó OpenAI konfiguráció: {', '.join(missing)}")
+
     endpoint = os.environ.get("OPENAI_ENDPOINT", "")
     key = os.environ.get("OPENAI_KEY", "")
-
-    if not endpoint or not key:
-        raise RuntimeError("Hiányzó OpenAI konfiguráció: OPENAI_ENDPOINT/OPENAI_KEY")
 
     return AzureOpenAI(
         azure_endpoint = endpoint,
@@ -76,9 +85,21 @@ SYSTEM = (
 
 # ── Routes ────────────────────────────────────────────────────────────────
 
+@app.get("/")
+def index():
+    return jsonify({"app": "azure-quotes-api", "status": "running"}), 200
+
 @app.get("/health")
 def health():
-    result = {"app": "ok", "db": "error", "openai": "error"}
+    result = {
+        "app": "ok",
+        "db": "error",
+        "openai": "error",
+        "config": {
+            "db_missing": missing_env_vars(REQUIRED_DB_ENV),
+            "openai_missing": missing_env_vars(REQUIRED_OPENAI_ENV),
+        },
+    }
 
     try:
         conn = get_db()
