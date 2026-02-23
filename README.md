@@ -104,15 +104,15 @@ Azure Portal → **Virtual machines** → **Create** → **Azure virtual machine
 
 | Beállítás      | Érték                                         |
 | -------------- | --------------------------------------------- |
-| Resource group | `workshop-rg`                                 |
-| Name           | `frontend-vm`                                 |
-| Region         | `Sweden Central`                              |
-| Image          | **Windows Server 2022 Datacenter**            |
-| Size           | **Standard_B2s**                              |
-| Username       | `rendszergazda`                               |
-| Password       | válassz és jegyezd meg!                       |
-| Inbound ports  | **HTTP (80), RDP (3389)**                     |
-| Public IP      | **Igen**, hozzunk létre egyet (hálózat fülön) |
+| Erőforrás csoport | `workshop-rg`                                 |
+| Név           | `frontend-vm`                                 |
+| Régió         | `Sweden Central`                              |
+| Kép           | **Windows Server 2022 Datacenter**            |
+| Méret         | **Standard_B2s**                              |
+| Felhasználónév | `rendszergazda`                               |
+| Jelszó        | válassz és jegyezd meg!                       |
+| Bejövő portok | **HTTP (80), RDP (3389)**                     |
+| Nyilvános IP  | **Igen**, hozzunk létre egyet (hálózat fülön) |
 
 ### 2.2 Csatlakozás
 
@@ -171,17 +171,17 @@ Azure Portal → **App Services** → **Create** → **Web App**
 
 | Beállítás      | Érték                                            |
 | -------------- | ------------------------------------------------ |
-| Resource group | `workshop-rg`                                    |
-| Name           | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
+| Erőforrás csoport | `workshop-rg`                                    |
+| Név           | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
 | Publish        | **Code**                                         |
 | Runtime        | **Python 3.12**                                  |
 | OS             | **Linux**                                        |
-| Region         | `Sweden Central`                                 |
+| Régió         | `Sweden Central`                                 |
 | Plan           | **Free F1**                                      |
 
 ### 3.2 Startup parancs beállítása
 
-App Service → **Configuration** → **Stack settings** → **Startup Command**:
+App Service → **Konfiguráció** → **Verembeállítások** → **Indítási parancs**:
 
 ```
 gunicorn --bind 0.0.0.0 --timeout 230 app:app
@@ -195,12 +195,12 @@ App Service → **Deployment Center**
 
 | Beállítás    | Érték                        |
 | ------------ | ---------------------------- |
-| Source       | **GitHub**                   |
-| Organization | a te GitHub felhasználóneved |
-| Repository   | `trn-azure-workshop`         |
-| Branch       | `main`                       |
+| Forrás       | **GitHub**                   |
+| Szervezet    | a te GitHub felhasználóneved |
+| Tároló       | `trn-azure-workshop`         |
+| Ág           | `main`                       |
 
-→ **Save**
+→ **Mentés**
 
 Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két sort kell módosítani**:
 
