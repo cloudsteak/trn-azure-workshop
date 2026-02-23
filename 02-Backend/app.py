@@ -29,25 +29,40 @@ CORS(app)
 
 # ── DB ────────────────────────────────────────────────────────────────────
 
-DB = {
-    "host":     os.environ["DB_HOST"],
-    "user":     os.environ["DB_USER"],
-    "password": os.environ["DB_PASSWORD"],
-    "database": os.environ.get("DB_NAME", "cloudquotes"),
-    "ssl":      {"ssl_disabled": False},
-    "connect_timeout": 10,
-    "cursorclass": pymysql.cursors.DictCursor,
-}
+def db_config():
+    host = os.environ.get("DB_HOST", "")
+    user = os.environ.get("DB_USER", "")
+    password = os.environ.get("DB_PASSWORD", "")
+
+    if not host or not user or not password:
+        raise RuntimeError("Hiányzó DB konfiguráció: DB_HOST/DB_USER/DB_PASSWORD")
+
+    return {
+        "host": host,
+        "port": int(os.environ.get("DB_PORT", 3306)),
+        "user": user,
+        "password": password,
+        "database": os.environ.get("DB_NAME", "cloudquotes"),
+        "ssl": {"ssl_disabled": False},
+        "connect_timeout": 10,
+        "cursorclass": pymysql.cursors.DictCursor,
+    }
 
 def get_db():
-    return pymysql.connect(**DB)
+    return pymysql.connect(**db_config())
 
 # ── OpenAI ────────────────────────────────────────────────────────────────
 
 def openai_client():
+    endpoint = os.environ.get("OPENAI_ENDPOINT", "")
+    key = os.environ.get("OPENAI_KEY", "")
+
+    if not endpoint or not key:
+        raise RuntimeError("Hiányzó OpenAI konfiguráció: OPENAI_ENDPOINT/OPENAI_KEY")
+
     return AzureOpenAI(
-        azure_endpoint = os.environ["OPENAI_ENDPOINT"],
-        api_key        = os.environ["OPENAI_KEY"],
+        azure_endpoint = endpoint,
+        api_key        = key,
         api_version    = "2024-02-01",
     )
 
@@ -88,22 +103,30 @@ def health():
 
 @app.get("/quotes")
 def all_quotes():
-    conn = get_db()
-    with conn.cursor() as cur:
-        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY id")
-        rows = cur.fetchall()
-    conn.close()
-    return jsonify({"count": len(rows), "quotes": rows})
+    try:
+        conn = get_db()
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, text, author, category FROM quotes ORDER BY id")
+            rows = cur.fetchall()
+        conn.close()
+        return jsonify({"count": len(rows), "quotes": rows})
+    except Exception as e:
+        log.exception("Quotes list hiba")
+        return jsonify({"error": f"Adatbázis hiba: {str(e)}"}), 500
 
 
 @app.get("/quotes/random")
 def random_quote():
-    conn = get_db()
-    with conn.cursor() as cur:
-        cur.execute("SELECT id, text, author, category FROM quotes ORDER BY RAND() LIMIT 1")
-        row = cur.fetchone()
-    conn.close()
-    return jsonify(row) if row else (jsonify({"error": "Nincs idézet"}), 404)
+    try:
+        conn = get_db()
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, text, author, category FROM quotes ORDER BY RAND() LIMIT 1")
+            row = cur.fetchone()
+        conn.close()
+        return jsonify(row) if row else (jsonify({"error": "Nincs idézet"}), 404)
+    except Exception as e:
+        log.exception("Random quote hiba")
+        return jsonify({"error": f"Adatbázis hiba: {str(e)}"}), 500
 
 
 @app.post("/chat")
@@ -113,16 +136,20 @@ def chat():
     if not message:
         return jsonify({"error": "Üres üzenet"}), 400
 
-    resp = openai_client().chat.completions.create(
-        model=DEPLOYMENT,
-        messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user",   "content": message},
-        ],
-        max_tokens=500,
-        temperature=0.7,
-    )
-    return jsonify({"reply": resp.choices[0].message.content})
+    try:
+        resp = openai_client().chat.completions.create(
+            model=DEPLOYMENT,
+            messages=[
+                {"role": "system", "content": SYSTEM},
+                {"role": "user",   "content": message},
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+        return jsonify({"reply": resp.choices[0].message.content})
+    except Exception as e:
+        log.exception("Chat hiba")
+        return jsonify({"error": f"OpenAI hiba: {str(e)}"}), 500
 
 
 if __name__ == "__main__":

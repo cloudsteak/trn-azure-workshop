@@ -63,4 +63,5 @@ jobs:
         with:
           app-name: "azure-quotes-api"
           slot-name: "Production"
+          package: ./02-Backend
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6BDC681C3809480AA71AA9C88D5876F7 }}
