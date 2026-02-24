@@ -37,3 +37,4 @@ Write-Host "============================================`n" -ForegroundColor Yel
 
 Write-Host "Kovetkezo lepes - szerkeszd a config.js-t:" -ForegroundColor Cyan
 Write-Host " $root\js\config.js" -ForegroundColor White
+node "$root\js\config.js"
