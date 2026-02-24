@@ -436,56 +436,63 @@ Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
 
 > _(Nincs kódfájl – a backend kód a 3. lépésben már felkerült)_
 
-### 5.1 OpenAI erőforrás létrehozása
+### 5.1 OpenAI erőforrás létrehozása (Azure AI Foundry)
 
-Azure Portal → **Azure OpenAI** → **Létrehozás**
+1. AI Foundry projekt létrehozása
 
-| Beállítás      | Érték                                                 |
-| -------------- | ----------------------------------------------------- |
-| Resource group | `workshop-rg`                                         |
-| Name           | `quotes-openai`                                       |
-| Region         | **Sweden Central** _(itt érhető el a legtöbb modell)_ |
-| Pricing tier   | Standard S0                                           |
+- Portál → keresd: **Azure AI Foundry**) → **AI Foundry-erőforrás létrehozása**
 
-### 5.2 Modell deployment (Azure AI Foundry)
+| Beállítás            | Érték                           |
+| -------------------- | ------------------------------- |
+| Erőforrás csoport    | `workshop-rg`                   |
+| Név                  | `quotes-azureai` _(egyedi név)_ |
+| Régió                | `Sweden Central`                |
+| Default project name | `quotes-project`                |
 
-OpenAI erőforrás → **Go to Azure AI Foundry** → **Deployments** → **Deploy model**
+Végül hozd létre a szokásos módon.
 
-| Beállítás       | Érték         |
-| --------------- | ------------- |
-| Model           | `gpt-4o-mini` |
-| Deployment name | `gpt-4o-mini` |
+> 1-2 perc alatt létrejön az erőforrás, utána lépj be a Foundry kezelőfelületére a portálról.
+> 💡 Az Azure AI Foundry egy új szolgáltatás, amely egyesíti az Azure OpenAI és más AI képességeket egy közös kezelőfelületen. Itt fogjuk deployolni a gpt-4.1-mini modellt, amit a backendünk használni fog.
 
-### 5.3 API Key és Endpoint lekérése
+- Amint kész kattints a **Ugrás a Foundry portálra** gombra.
 
-Azure Portal → OpenAI erőforrás → **Keys and Endpoint**
+> Mivel ennek különálló felölete van, így ide be kell jelentkezni ugyanazzal az Azure fiókkal, amivel a portálra is be vagy jelentkezve.
 
-- **Endpoint**: `https://quotes-openai.openai.azure.com/`
-- **Key 1**: `xxxxxxxx…`
+2. Modell deploy (AI Foundry)
 
-### 5.4 ⚠️ App Service: OpenAI environment variables
+- Foundry portál → **Models + Endpoints** → **Deploy model** → **Deploy base model**
+- Model: válaszd (pl. `gpt-4.1-mini`) — ez egy olcsóbb, de még mindig nagyon jó modell a GPT-4 családból
+- Kattints a **Confirm** gombra a deploy megkezdéséhez
+- Deployment name: használj egyszerű, pontos nevet (például `gpt-4.1-mini`) — ez kerül az `OPENAI_DEPLOYMENT` env var‑ba. Bizonyosodj meg róla, hogy a _Resource location\*\* megegyezik a portálon létrehozott erőforrás régiójával_ (Sweden Central).
+- **Deploy** → várd meg, hogy a deployment státusza **Ready / Succeeded** legyen
 
-App Service → **Configuration** → **Environment variables** → **+ Add**
+3. Kulcs és endpoint (Portal)
 
-| Name                | Value                                     |
-| ------------------- | ----------------------------------------- |
-| `OPENAI_ENDPOINT`   | `https://quotes-openai.openai.azure.com/` |
-| `OPENAI_KEY`        | az API kulcs                              |
-| `OPENAI_DEPLOYMENT` | `gpt-4o-mini`                             |
+- OpenAI erőforrás → **Keys and Endpoint**
+- Másold ki az **Endpoint**-ot (például: `https://quotes-azureai.cognitiveservices.azure.com/`) — ügyelj a trailing slash‑re ha a kód azt várja
+- Másold ki az **Key1** értékét (API kulcs)
 
-Minden sor után **+ Add**, majd → **Apply** → **Confirm** → **Save**
+4. App Service — környezeti változók beállítása (portal)
 
-> ⚠️ A Save után az App Service automatikusan újraindul.
+- Portal → App Services → válaszd ki az alkalmazást (`quotes-db-athcgxhkgxezcrdq`) → **Configuration** → **Application settings** → **+ New**
+  - `OPENAI_ENDPOINT` = (az Endpoint)
+  - `OPENAI_KEY` = (Key1)
+  - `OPENAI_DEPLOYMENT` = (a Foundry deployment neve, pl. `gpt-4.1-mini`)
+- **Alkalmaz / Confirm** → az App Service automatikusan újraindul.
 
-### 5.5 Tesztelés
+5. Ellenőrzés (portal)
 
-Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>` → 🤖 → kérdezz valamit!
+- Foundry: győződj meg, hogy a deployment státusza **Ready**
+- App Service → **Configuration**: látszanak-e az `OPENAI_*` bejegyzések
+- App Service → **Log stream**: figyeld a startup és OpenAI hibákat
+- Health endpoint, például: https://quotes-db-athcgxhkgxezcrdq.swedencentral-01.azurewebsites.net/health — elvárt: `"config":{"openai_missing":[]}` és `"openai":"ok"`
 
-🎉 **Az AI válaszol!** A health dashboard-on az OpenAI is zöldre vált.
+Hibakeresési tippek (portal):
 
-> 💡 **Megjegyzés**: A chatbotnak nincs memóriája – minden üzenet független kérés az OpenAI felé.
-> Memóriát (konverzáció-előzmények) Azure Cosmos DB-vel lehetne implementálni, de a cél most az volt,
-> hogy lássuk milyen **egyszerű egy AI chatbotot összerakni** Azure-on.
+- Ha `openai_missing` marad, ellenőrizd a `OPENAI_ENDPOINT` végén a `/`-t és a `OPENAI_DEPLOYMENT` pontos egyezését a Foundry deployment névvel.
+- Log streamen keresd az auth error/401, vagy "deployment not found" hibákat.
+  > Memóriát (konverzáció-előzmények) Azure Cosmos DB-vel lehetne implementálni, de a cél most az volt,
+  > hogy lássuk milyen **egyszerű egy AI chatbotot összerakni** Azure-on.
 
 ---
 
@@ -530,6 +537,6 @@ Minden törlődik egyszerre.
 | VM Standard_B2s            | ❌             | ~$0.05/nap      |
 | App Service Alapszintű B1  | ❌             | ~$0.432/nap     |
 | Azure MySQL Burstable B1ms | ❌             | ~$0.02/nap      |
-| Azure OpenAI GPT-4o-mini   | ❌ Pay-per-use | ~$0.01–0.05/nap |
+| Azure OpenAI gpt-4.1-mini  | ❌ Pay-per-use | ~$0.01–0.05/nap |
 
 Összesen: **~$0.5/nap** (nagyrészt az App Service miatt)
