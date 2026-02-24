@@ -182,6 +182,7 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 | Díjszabási csomag | **Alapszintű B1**                                |
 
 **Üzembe helyezés**
+
 | Beállítás | Érték |
 | --------- | ---------------------------- |
 | Folyamatos üzembe helyezés | **GitHub** |
