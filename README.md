@@ -221,8 +221,14 @@ App Service → **Üzembe helyezési központ**
 Mentéshez kattints a **Mentés** gombra.
 
 
+Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Ez a GitHub Actions workflow felelős azért, hogy a `main` branchre pusholt változtatásokat automatikusan deployolja az App Service-re.
+**Gyors megoldás (ha a workflow már fut és le kell állítani):**
 
-Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két helyen kell módosítani**:
+- GitHub web UI: menj a `https://github.com/<owner>/<repo>/actions` oldalra → kattints a futó workflow runra → jobb oldalt nyomd a **Cancel run** gombot.
+- Ha teljesen le akarod tiltani a jövőbeni futásokat: Repo → **Actions** → **Workflows** → válaszd ki a munkafolyamatot → **Disable workflow**.
+
+Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két helyen kell módosítani**:
+
 
 ```yaml
 # 1. sor – pip install: cd 02-Backend hozzáadása
@@ -245,7 +251,7 @@ Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.ym
 
 Minden `main` branchre pusholt változtatás után az App Service automatikusan újra deployol.
 
-### 3.4 ⚠️ App Service: környezeti változók felvétele (egyelőre üresen)
+### 3.5 ⚠️ App Service: környezeti változók felvétele (egyelőre üresen)
 
 App Service → **Configuration** → **Environment variables** → **+ Add**
 
