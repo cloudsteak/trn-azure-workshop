@@ -16,7 +16,7 @@ function setError(message = '') {
     el.textContent = message;
 }
 
-function setHealthCard(id, ok, detail) {
+function setHealthCard(id, status, detail) {
     const card = document.getElementById(id);
     if (!card) return;
 
@@ -25,7 +25,9 @@ function setHealthCard(id, ok, detail) {
 
     if (dot) {
         dot.classList.remove('ok', 'error');
-        dot.classList.add(ok ? 'ok' : 'error');
+        if (status === 'ok') dot.classList.add('ok');
+        else if (status === 'error') dot.classList.add('error');
+        // 'checking' = sem ok, sem error → szürke
     }
 
     if (text) {
@@ -172,31 +174,38 @@ function toggleChat() {
 }
 
 async function checkHealth() {
-    setHealthCard('health-vm', true, 'Frontend betöltve (IIS)');
+    // 1. Mindenki checking állapotba
+    setHealthCard('health-vm',  'checking', 'Ellenőrzés...');
+    setHealthCard('health-app', 'checking', 'Ellenőrzés...');
+    setHealthCard('health-db',  'checking', 'Ellenőrzés...');
+    setHealthCard('health-ai',  'checking', 'Ellenőrzés...');
+    setError('');
+
+    // 2. VM mindig ok – az oldal betöltött
+    await new Promise(r => setTimeout(r, 300));
+    setHealthCard('health-vm', 'ok', 'Frontend betöltve (IIS)');
 
     const backendUrl = (CONFIG?.BACKEND_URL || '').trim();
     if (!backendUrl || backendUrl.includes('XXXXXXXXXX')) {
-        setHealthCard('health-app', false, 'BACKEND_URL nincs beállítva');
-        setHealthCard('health-db', false, 'Backend nem elérhető');
-        setHealthCard('health-ai', false, 'Backend nem elérhető');
+        setHealthCard('health-app', 'error', 'BACKEND_URL nincs beállítva');
+        setHealthCard('health-db',  'error', 'Backend nem elérhető');
+        setHealthCard('health-ai',  'error', 'Backend nem elérhető');
         setError('Állítsd be a js/config.js fájlban a BACKEND_URL értékét az App Service URL-re.');
         return;
     }
 
     try {
         const response = await fetch(apiUrl('/health'));
-        if (!response.ok) {
-            throw new Error('A health endpoint hibát adott vissza.');
-        }
+        if (!response.ok) throw new Error('A health endpoint hibát adott vissza.');
 
         const data = await response.json();
-        setHealthCard('health-app', data.app === 'ok', data.app === 'ok' ? 'API működik' : 'API hiba');
-        setHealthCard('health-db', data.db === 'ok', data.db === 'ok' ? 'MySQL elérhető' : 'MySQL hiba');
-        setHealthCard('health-ai', data.openai === 'ok', data.openai === 'ok' ? 'OpenAI elérhető' : 'OpenAI hiba');
+        setHealthCard('health-app', data.app    === 'ok' ? 'ok' : 'error', data.app    === 'ok' ? 'API működik'       : 'API hiba');
+        setHealthCard('health-db',  data.db     === 'ok' ? 'ok' : 'error', data.db     === 'ok' ? 'MySQL elérhető'    : 'MySQL hiba');
+        setHealthCard('health-ai',  data.openai === 'ok' ? 'ok' : 'error', data.openai === 'ok' ? 'OpenAI elérhető'   : 'OpenAI hiba');
     } catch (error) {
-        setHealthCard('health-app', false, 'App Service nem elérhető');
-        setHealthCard('health-db', false, 'Nincs backend kapcsolat');
-        setHealthCard('health-ai', false, 'Nincs backend kapcsolat');
+        setHealthCard('health-app', 'error', 'App Service nem elérhető');
+        setHealthCard('health-db',  'error', 'Nincs backend kapcsolat');
+        setHealthCard('health-ai',  'error', 'Nincs backend kapcsolat');
         setError(error.message || 'Nem sikerült kapcsolódni a backendhez.');
     }
 }
