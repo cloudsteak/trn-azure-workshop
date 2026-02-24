@@ -402,7 +402,7 @@ SSL tab – kötelező a MySQL-hez:
 
 1. Bal oldali fa → `quotes-db.mysql.database.azure.com` → Databases
 2. Felül keresd meg az **Open SQL script** gombot – megnyílik egy új SQL editor ablak
-3. Az üres részben kattints jobb gombbal és válaszd a **File** →  **Import SQL script** opciót, majd tallózd be a `03-Database/init.sql` fájlt
+3. Az üres részben kattints jobb gombbal és válaszd a **File** → **Import SQL script** opciót, majd tallózd be a `03-Database/init.sql` fájlt
 4. **Execute SQL script** gombra kattintva az összes parancs lefut
 5. Ellenőrzés: a Results panelen látod a kategóriánkénti darabszámot
 
@@ -422,7 +422,7 @@ Add hozzá egyenként az alábbi változókat:
 
 Az összes módosítása után → **Alkalmaz** → **Megerősítés**
 
-> ⚠️ Ezután az App Service automatikusan felolvassa az értékeket.
+> ⚠️ Ezután az App Service automatikusan újraindul és felolvassa az értékeket. ~ 3-5 perc lehet, amíg újra elérhető lesz.
 
 ### 4.6 Tesztelés
 
