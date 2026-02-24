@@ -2,6 +2,7 @@ const state = {
     quotes: [],
     activeCategory: '',
     chatOpen: false,
+    chatHistory: [],
 };
 
 function apiUrl(path) {
@@ -142,7 +143,7 @@ async function sendChat() {
         const response = await fetch(apiUrl('/chat'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message }),
+            body: JSON.stringify({ message, history: state.chatHistory }),
         });
 
         const payload = await response.json();
@@ -150,7 +151,10 @@ async function sendChat() {
             throw new Error(payload?.error || 'A chat szolgáltatás nem elérhető.');
         }
 
-        appendChatMessage(payload.reply || 'Nincs válasz.', 'ai');
+        const reply = payload.reply || 'Nincs válasz.';
+        state.chatHistory.push({ role: 'user', content: message });
+        state.chatHistory.push({ role: 'assistant', content: reply });
+        appendChatMessage(reply, 'ai');
     } catch (error) {
         appendChatMessage(error.message || 'Hiba történt a chat során.', 'ai');
     } finally {

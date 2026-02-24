@@ -154,16 +154,18 @@ def random_quote():
 def chat():
     body = request.get_json(silent=True) or {}
     message = (body.get("message") or "").strip()
+    history = body.get("history", [])
     if not message:
         return jsonify({"error": "Üres üzenet"}), 400
+
+    messages = [{"role": "system", "content": SYSTEM}]
+    messages += history
+    messages.append({"role": "user", "content": message})
 
     try:
         resp = openai_client().chat.completions.create(
             model=DEPLOYMENT,
-            messages=[
-                {"role": "system", "content": SYSTEM},
-                {"role": "user",   "content": message},
-            ],
+            messages=messages,
             max_tokens=500,
             temperature=0.7,
         )
