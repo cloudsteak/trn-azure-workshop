@@ -37,12 +37,15 @@
         </div>
 
         <div class="controls">
-            <button class="btn btn-primary" onclick="loadRandomQuote()">🎲 Új idézet</button>
-            <br>
-            <button class="btn btn-secondary" data-cat="tech" onclick="filterCategory(this)">💻 Tech</button>
-            <button class="btn btn-secondary" data-cat="cloud" onclick="filterCategory(this)">☁️ Cloud</button>
-            <button class="btn btn-secondary" data-cat="motivation" onclick="filterCategory(this)">🚀 Motiváció</button>
-            <button class="btn btn-secondary" data-cat="" onclick="filterCategory(this)">📋 Összes</button>
+            <div class="controls-row">
+                <button class="btn btn-primary" onclick="loadRandomQuote()">🎲 Új idézet</button>
+            </div>
+            <div class="controls-row">
+                <button class="btn btn-secondary" data-cat="tech" onclick="filterCategory(this)">💻 Tech</button>
+                <button class="btn btn-secondary" data-cat="cloud" onclick="filterCategory(this)">☁️ Cloud</button>
+                <button class="btn btn-secondary" data-cat="motivation" onclick="filterCategory(this)">🚀 Motiváció</button>
+                <button class="btn btn-secondary" data-cat="" onclick="filterCategory(this)">📋 Összes</button>
+            </div>
         </div>
 
         <details class="quotes-collapsible" id="quotesCollapsible">
@@ -70,7 +73,7 @@
                 <div class="arch-arrow">→</div>
                 <div class="arch-box"><div class="icon">⚙️</div><div class="label">App Service</div><div class="sub">Flask API</div></div>
                 <div class="arch-arrow">→</div>
-                <div class="arch-box"><div class="icon">🤖</div><div class="label">Azure OpenAI</div><div class="sub">gpt-4.1-mini</div></div>
+                <div class="arch-box"><div class="icon">🤖</div><div class="label">Azure OpenAI</div><div class="sub">GPT-4.1-mini</div></div>
             </div>
         </div>
 
@@ -107,7 +110,7 @@
             <div class="chat-header-icon">🤖</div>
             <div class="chat-header-text">
                 <h3>Cloud Mentor AI</h3>
-                <p>Powered by Azure OpenAI (gpt-4.1-mini)</p>
+                <p>Powered by Azure OpenAI (GPT-4.1-mini)</p>
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
@@ -122,7 +125,7 @@
                    onkeydown="if(event.key==='Enter') sendChat()">
             <button class="chat-send" id="chatSend" onclick="sendChat()">➤</button>
         </div>
-        <div class="powered-by">Azure OpenAI + gpt-4.1-mini | Azure Workshop</div>
+        <div class="powered-by">Azure OpenAI + GPT-4.1-mini | Azure Workshop</div>
     </div>
 
     <script src="js/config.js"></script>
