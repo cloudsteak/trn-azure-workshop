@@ -286,7 +286,7 @@ Itt egy példa arra, hogyan nézhet ki a JSON:
   },
   {
     "name": "DB_NAME",
-    "value": "",
+    "value": "cloudquotes",
     "slotSetting": false
   },
   {
@@ -301,7 +301,7 @@ Itt egy példa arra, hogyan nézhet ki a JSON:
   },
   {
     "name": "OPENAI_DEPLOYMENT",
-    "value": "",
+    "value": "gpt-4.1-mini",
     "slotSetting": false
   }
 ]
@@ -408,9 +408,9 @@ SSL tab – kötelező a MySQL-hez:
 
 ### 4.5 ⚠️ App Service: environment variables beállítása
 
-App Service → **Configuration** → **Environment variables** → **+ Add**
+App Service → **Beállítások** → **Környezeti változók** → **Alkalmazásbeállítások**
 
-Add hozzá egyenként az alábbi változókat:
+Módosítsd egyenként az alábbi változókat:
 
 | Name          | Value                                |
 | ------------- | ------------------------------------ |
@@ -472,12 +472,15 @@ Végül hozd létre a szokásos módon.
 - Másold ki az **Endpoint**-ot (például: `https://quotes-azureai.cognitiveservices.azure.com/`) — ügyelj a trailing slash‑re ha a kód azt várja
 - Másold ki az **Key1** értékét (API kulcs)
 
-4. App Service — környezeti változók beállítása (portal)
+4. App Service — környezeti változók beállítása
 
-- Portal → App Services → válaszd ki az alkalmazást (`quotes-db-athcgxhkgxezcrdq`) → **Configuration** → **Application settings** → **+ New**
-  - `OPENAI_ENDPOINT` = (az Endpoint)
-  - `OPENAI_KEY` = (Key1)
-  - `OPENAI_DEPLOYMENT` = (a Foundry deployment neve, pl. `gpt-4.1-mini`)
+App Service → **Beállítások** → **Környezeti változók** → **Alkalmazásbeállítások**
+
+Módosítsd egyenként az alábbi változókat:
+
+- `OPENAI_ENDPOINT` = (az Endpoint)
+- `OPENAI_KEY` = (Key1)
+- `OPENAI_DEPLOYMENT` = (a Foundry deployment neve, pl. `gpt-4.1-mini`)
 - **Alkalmaz / Confirm** → az App Service automatikusan újraindul.
 
 5. Ellenőrzés (portal)
@@ -485,7 +488,7 @@ Végül hozd létre a szokásos módon.
 - Foundry: győződj meg, hogy a deployment státusza **Ready**
 - App Service → **Configuration**: látszanak-e az `OPENAI_*` bejegyzések
 - App Service → **Log stream**: figyeld a startup és OpenAI hibákat
-- Health endpoint, például: https://quotes-db-athcgxhkgxezcrdq.swedencentral-01.azurewebsites.net/health — elvárt: `"config":{"openai_missing":[]}` és `"openai":"ok"`
+- Health endpoint, például: https://azure-quotes-api.swedencentral-01.azurewebsites.net/health — elvárt: `"config":{"openai_missing":[]}` és `"openai":"ok"`
 
 Hibakeresési tippek (portal):
 
