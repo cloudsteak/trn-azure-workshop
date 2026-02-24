@@ -83,7 +83,7 @@ graph TD
 
 ## 1. lépés – Resource Group
 
-Azure Portal → **Resource groups** → **Create**
+Azure Portal → **Resource groups** → **Létrehozás**
 
 | Beállítás | Érték            |
 | --------- | ---------------- |
@@ -100,19 +100,19 @@ Azure Portal → **Resource groups** → **Create**
 
 ### 2.1 VM létrehozása
 
-Azure Portal → **Virtual machines** → **Create** → **Azure virtual machine**
+Azure Portal → **Virtual machines** → **Létrehozás** → **Azure virtual machine**
 
-| Beállítás      | Érték                                         |
-| -------------- | --------------------------------------------- |
+| Beállítás         | Érték                                         |
+| ----------------- | --------------------------------------------- |
 | Erőforrás csoport | `workshop-rg`                                 |
-| Név           | `frontend-vm`                                 |
-| Régió         | `Sweden Central`                              |
-| Kép           | **Windows Server 2022 Datacenter**            |
-| Méret         | **Standard_B2s**                              |
-| Felhasználónév | `rendszergazda`                               |
-| Jelszó        | válassz és jegyezd meg!                       |
-| Bejövő portok | **HTTP (80), RDP (3389)**                     |
-| Nyilvános IP  | **Igen**, hozzunk létre egyet (hálózat fülön) |
+| Név               | `frontend-vm`                                 |
+| Régió             | `Sweden Central`                              |
+| Kép               | **Windows Server 2022 Datacenter**            |
+| Méret             | **Standard_B2s**                              |
+| Felhasználónév    | `rendszergazda`                               |
+| Jelszó            | válassz és jegyezd meg!                       |
+| Bejövő portok     | **HTTP (80), RDP (3389)**                     |
+| Nyilvános IP      | **Igen**, hozzunk létre egyet (hálózat fülön) |
 
 ### 2.2 Csatlakozás
 
@@ -167,17 +167,24 @@ Teszt: `http://<VM_PUBLIC_IP>` → Az oldal megjelenik. A health dashboard piros
 
 ### 3.1 App Service létrehozása
 
-Azure Portal → **App Services** → **Create** → **Web App**
+Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
-| Beállítás      | Érték                                            |
-| -------------- | ------------------------------------------------ |
+**Alapvető beállítások**
+
+| Beállítás         | Érték                                            |
+| ----------------- | ------------------------------------------------ |
 | Erőforrás csoport | `workshop-rg`                                    |
-| Név           | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
-| Publish        | **Code**                                         |
-| Runtime        | **Python 3.12**                                  |
-| OS             | **Linux**                                        |
-| Régió         | `Sweden Central`                                 |
-| Plan           | **Free F1**                                      |
+| Név               | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
+| Közzététel        | **Code**                                         |
+| Futtatókörnyezet  | **Python 3.12**                                  |
+| OS                | **Linux**                                        |
+| Régió             | `Sweden Central`                                 |
+| Díjszabási csomag | **Alapszintű B1**                                |
+
+**Üzembe helyezés**
+| Beállítás | Érték |
+| --------- | ---------------------------- |
+| Folyamatos üzembe helyezés | **GitHub** |
 
 ### 3.2 Startup parancs beállítása
 
@@ -193,12 +200,12 @@ gunicorn --bind 0.0.0.0 --timeout 230 app:app
 
 App Service → **Deployment Center**
 
-| Beállítás    | Érték                        |
-| ------------ | ---------------------------- |
-| Forrás       | **GitHub**                   |
-| Szervezet    | a te GitHub felhasználóneved |
-| Tároló       | `trn-azure-workshop`         |
-| Ág           | `main`                       |
+| Beállítás | Érték                        |
+| --------- | ---------------------------- |
+| Forrás    | **GitHub**                   |
+| Szervezet | a te GitHub felhasználóneved |
+| Tároló    | `trn-azure-workshop`         |
+| Ág        | `main`                       |
 
 → **Mentés**
 
@@ -266,7 +273,7 @@ const CONFIG = {
 
 ### 4.1 MySQL Flexible Server létrehozása
 
-Azure Portal → **Azure Database for MySQL Flexible Servers** → **Create**
+Azure Portal → **Azure Database for MySQL Flexible Servers** → **Létrehozás**
 
 | Beállítás      | Érték                   |
 | -------------- | ----------------------- |
@@ -351,7 +358,7 @@ Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
 
 ### 5.1 OpenAI erőforrás létrehozása
 
-Azure Portal → **Azure OpenAI** → **Create**
+Azure Portal → **Azure OpenAI** → **Létrehozás**
 
 | Beállítás      | Érték                                                 |
 | -------------- | ----------------------------------------------------- |
@@ -441,6 +448,8 @@ Minden törlődik egyszerre.
 | Szolgáltatás               | Free tier      | Becsült költség |
 | -------------------------- | -------------- | --------------- |
 | VM Standard_B2s            | ❌             | ~$0.05/nap      |
-| App Service Free F1        | ✅             | $0              |
+| App Service Alapszintű B1  | ❌             | ~$0.432/nap     |
 | Azure MySQL Burstable B1ms | ❌             | ~$0.02/nap      |
 | Azure OpenAI GPT-4o-mini   | ❌ Pay-per-use | ~$0.01–0.05/nap |
+
+Összesen: **~$0.5/nap** (nagyrészt az App Service miatt)
