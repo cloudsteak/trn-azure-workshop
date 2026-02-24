@@ -340,17 +340,21 @@ Mentés után a frontend készen áll, de még nem fog működni, mert a backend
 
 ### 4.1 MySQL Flexible Server létrehozása
 
-Azure Portal → **Azure Database for MySQL Flexible Servers** → **Létrehozás**
+Azure Portal → **Azure Database for MySQL – rugalmas kiszolgálók** → **Létrehozás**
+
+_Megjegyzés_: 
+- _A MySQL-nek van egy "Single Server" és egy "Flexible Server" üzemmódja. A Flexible Server több testreszabási lehetőséget és jobb teljesítményt kínál, ezért ezt választjuk._
+- _A Rugalmas kiszolgálót hozd létre, ne a Wordpress telepítőt, mert az utóbbi egy előre konfigurált környezetet állít be, ami most nem szükséges._
 
 | Beállítás      | Érték                   |
 | -------------- | ----------------------- |
-| Resource group | `workshop-rg`           |
-| Server name    | `quotes-db` _(egyedi!)_ |
-| Region         | `Sweden Central`        |
-| MySQL version  | `8.0`                   |
-| Workload type  | **Development**         |
-| Admin username | `adminuser`             |
-| Password       | válassz és jegyezd meg! |
+| Erőforráscsoport | `workshop-rg`           |
+| Szerver neve    | `quotes-db` _(egyedi!)_ |
+| Régió           | `Sweden Central`        |
+| MySQL verzió    | `8.0`                   |
+| Munkaterhelés típusa | **Development**         |
+| Admin felhasználónév | `adminuser`             |
+| Jelszó          | válassz és jegyezd meg! |
 
 **Networking tab:**
 
