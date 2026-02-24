@@ -187,13 +187,12 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
 App Service → **Konfiguráció** → **Általános beállítások**
 
-| Beállítás           | Érték                        |
-| ------------------- | ---------------------------- |
-| SCM alapszintű hitelesítés közzétételi hitelesítő adatai | **Engedélyezés**             |
-| Mindig bekapcsolvat | **Engedélyezés**             |
+| Beállítás                                                | Érték            |
+| -------------------------------------------------------- | ---------------- |
+| SCM alapszintű hitelesítés közzétételi hitelesítő adatai | **Engedélyezés** |
+| Mindig bekapcsolvat                                      | **Engedélyezés** |
 
 Mentéshez kattints az **Alkalmaz** gombra.
-
 
 ### 3.3 Startup parancs beállítása
 
@@ -220,7 +219,6 @@ App Service → **Üzembe helyezési központ**
 
 Mentéshez kattints a **Mentés** gombra.
 
-
 Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Ez a GitHub Actions workflow felelős azért, hogy a `main` branchre pusholt változtatásokat automatikusan deployolja az App Service-re.
 **Gyors megoldás (ha a workflow már fut és le kell állítani):**
 
@@ -228,7 +226,6 @@ Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.ym
 - Ha teljesen le akarod tiltani a jövőbeni futásokat: Repo → **Actions** → **Workflows** → válaszd ki a munkafolyamatot → **Disable workflow**.
 
 Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két helyen kell módosítani**:
-
 
 ```yaml
 # 1. sor – pip install: cd 02-Backend hozzáadása
@@ -274,12 +271,12 @@ Itt egy példa arra, hogyan nézhet ki a JSON:
   },
   {
     "name": "DB_PORT",
-    "value": "",
+    "value": "3306",
     "slotSetting": false
   },
   {
     "name": "DB_USER",
-    "value": "",
+    "value": "adminuser",
     "slotSetting": false
   },
   {
@@ -312,7 +309,6 @@ Itt egy példa arra, hogyan nézhet ki a JSON:
 
 Majd kattints az **OK** gombra, és végül az **Alkalmaz** gombra.
 
-
 > Későbbi lépésekben ezeket kitöltjük a valós értékekkel.
 
 ### 3.6 ⚠️ Vissza a VM-re: config.js frissítése
@@ -329,7 +325,6 @@ const CONFIG = {
 };
 ```
 
-
 Mentés után a frontend készen áll, de még nem fog működni, mert a backendben sincsenek meg a helyes környezeti változók.
 
 ---
@@ -338,42 +333,47 @@ Mentés után a frontend készen áll, de még nem fog működni, mert a backend
 
 > 📂 Fájlok: `03-Database/`
 
-### 4.1 MySQL Flexible Server létrehozása
+### 4.1 MySQL Rugalmas kiszolgáló létrehozása
 
 Azure Portal → **Azure Database for MySQL – rugalmas kiszolgálók** → **Létrehozás**
 
-_Megjegyzés_: 
+_Megjegyzés_:
+
 - _A MySQL-nek van egy "Single Server" és egy "Flexible Server" üzemmódja. A Flexible Server több testreszabási lehetőséget és jobb teljesítményt kínál, ezért ezt választjuk._
 - _A Rugalmas kiszolgálót hozd létre, ne a Wordpress telepítőt, mert az utóbbi egy előre konfigurált környezetet állít be, ami most nem szükséges._
 
-**Rigalmas kiszolgáló** → **Gyors létrehozás**
+**Rugalmas kiszolgáló** → **Gyors létrehozás**
 
-| Beállítás      | Érték                   |
-| -------------- | ----------------------- |
-| Erőforráscsoport | `workshop-rg`           |
-| Szerver neve    | `quotes-db` _(egyedi!)_ |
-| Régió           | `Sweden Central`        |
-| MySQL verzió    | `8.0`                   |
-| Munkaterhelés típusa | **Development**         |
-| Admin felhasználónév | `adminuser`             |
-| Jelszó          | válassz és jegyezd meg! |
+| Beállítás                | Érték                   |
+| ------------------------ | ----------------------- |
+| Erőforráscsoport         | `workshop-rg`           |
+| Kiszolgálónév            | `quotes-db` _(egyedi!)_ |
+| Régió                    | `Sweden Central`        |
+| Admin felhasználónév     | `adminuser`             |
+| Jelszó                   | válassz és jegyezd meg! |
+| Számítási feladat típusa | **Dev/Test**            |
 
 **Networking tab:**
 
 - Connectivity method: **Public access**
 - ✅ Add current client IP address
 
-→ **Review + create** → Várj ~3 percet.
+→ **Review + create** → Várj ~5 percet.
 
 ### 4.2 Firewall – App Service hozzáférés
 
-MySQL Flexible Server → **Networking** → **Firewall rules** → **Add**:
+MySQL Rugalmas kiszolgáló → **Hálózatkezelő**
 
-| Name        | Start IP  | End IP            |
-| ----------- | --------- | ----------------- |
-| `allow-all` | `0.0.0.0` | `255.255.255.255` |
+| Beállítás                                                                                                | Érték                                                        |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Az Azure-ban található bármely Azure-szolgáltatás nyilvános hozzáférésének engedélyezése a kiszolgálóhoz | **Engedélyezés** (Ezt máskor csak indokolt esetben használd) |
+| + 0.0.0.0 – 255.255.255.255 hozzáadása                                                                   | **Engedélyezés**                                             |
+
+A **Mentés** gomb megnyomása után a tűzfal szabályok frissülnek, és az App Service képes lesz csatlakozni a MySQL adatbázishoz.
 
 > ⚠️ Workshop után szűkítsd le!
+
+Kattints az **SSL-tanúsítvány letöltése** gombra, és mentsd el a **DigiCertGlobalRootG2.crt.pem** tanúsítványt a gépedre a DBeaver SSL kapcsolathoz.
 
 ### 4.3 Csatlakozás DBeaver-rel
 
@@ -383,20 +383,27 @@ DBeaver → **New Database Connection** → **MySQL**
 | -------- | ------------------------------------ |
 | Host     | `quotes-db.mysql.database.azure.com` |
 | Port     | `3306`                               |
-| Database | `cloudquotes`                        |
+| Database | `Show all databases`                 |
 | Username | `adminuser`                          |
 | Password | a te jelszavad                       |
 
-SSL tab: **Use SSL** ✅
+SSL tab – kötelező a MySQL-hez:
+
+| Beállítás                 | Érték                        |
+| ------------------------- | ---------------------------- |
+| Use SSL                   | ✅                           |
+| Require SSL               | ✅                           |
+| Verify server certificate | ✅                           |
+| CA Certificate            | DigiCertGlobalRootG2.crt.pem |
 
 → **Test Connection** → **Finish**
 
 ### 4.4 SQL futtatása DBeaver-ben
 
-1. Bal oldali fa → `cloudquotes` → jobb klikk → **SQL Editor** → **Open SQL Script**
-2. Nyisd meg a `03-Database/init.sql` fájlt (File → Open File, vagy másold be a tartalmát)
-3. **Fontos**: az editor tetején ellenőrizd, hogy a `cloudquotes` adatbázis van kiválasztva!
-4. **Execute** (▶️ gomb vagy Ctrl+Enter) – az összes parancs lefut
+1. Bal oldali fa → `quotes-db.mysql.database.azure.com` → Databases
+2. Felül keresd meg az **Open SQL script** gombot – megnyílik egy új SQL editor ablak
+3. Az üres részben kattints jobb gombbal és válaszd a **File** →  **Import SQL script** opciót, majd tallózd be a `03-Database/init.sql` fájlt
+4. **Execute SQL script** gombra kattintva az összes parancs lefut
 5. Ellenőrzés: a Results panelen látod a kategóriánkénti darabszámot
 
 ### 4.5 ⚠️ App Service: environment variables beállítása
@@ -413,9 +420,9 @@ Add hozzá egyenként az alábbi változókat:
 | `DB_PASSWORD` | a te jelszavad                       |
 | `DB_NAME`     | `cloudquotes`                        |
 
-Minden sor után **+ Add**, majd az összes hozzáadása után → **Apply** → **Confirm** → **Save**
+Az összes módosítása után → **Alkalmaz** → **Megerősítés**
 
-> ⚠️ A Save után az App Service automatikusan újraindul.
+> ⚠️ Ezután az App Service automatikusan felolvassa az értékeket.
 
 ### 4.6 Tesztelés
 
