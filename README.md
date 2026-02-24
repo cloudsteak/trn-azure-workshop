@@ -346,6 +346,8 @@ _Megjegyzés_:
 - _A MySQL-nek van egy "Single Server" és egy "Flexible Server" üzemmódja. A Flexible Server több testreszabási lehetőséget és jobb teljesítményt kínál, ezért ezt választjuk._
 - _A Rugalmas kiszolgálót hozd létre, ne a Wordpress telepítőt, mert az utóbbi egy előre konfigurált környezetet állít be, ami most nem szükséges._
 
+**Rigalmas kiszolgáló** → **Gyors létrehozás**
+
 | Beállítás      | Érték                   |
 | -------------- | ----------------------- |
 | Erőforráscsoport | `workshop-rg`           |
