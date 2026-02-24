@@ -253,36 +253,84 @@ Minden `main` branchre pusholt változtatás után az App Service automatikusan 
 
 ### 3.5 ⚠️ App Service: környezeti változók felvétele (egyelőre üresen)
 
-App Service → **Configuration** → **Environment variables** → **+ Add**
+App Service → **Beállítások** → **Környezeti változók** → **Alkalmazásbeállítások** → **Speciális szerkesztés**
 
+Ebben a nézetben JSON formátumban adhatod meg a környezeti változókat.
 Vedd fel az alábbi kulcsokat akkor is, ha most még nincs végleges értéked (érték mező maradhat átmenetileg üres):
 
-| Name                | Value most |
-| ------------------- | ---------- |
-| `DB_HOST`           | _(üres)_   |
-| `DB_PORT`           | _(üres)_   |
-| `DB_USER`           | _(üres)_   |
-| `DB_PASSWORD`       | _(üres)_   |
-| `DB_NAME`           | _(üres)_   |
-| `OPENAI_ENDPOINT`   | _(üres)_   |
-| `OPENAI_KEY`        | _(üres)_   |
-| `OPENAI_DEPLOYMENT` | _(üres)_   |
+Itt egy példa arra, hogyan nézhet ki a JSON:
+
+```json
+[
+  {
+    "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+    "value": "1",
+    "slotSetting": false
+  },
+  {
+    "name": "DB_HOST",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "DB_PORT",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "DB_USER",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "DB_PASSWORD",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "DB_NAME",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "OPENAI_ENDPOINT",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "OPENAI_KEY",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "OPENAI_DEPLOYMENT",
+    "value": "",
+    "slotSetting": false
+  }
+]
+```
+
+Majd kattints az **OK** gombra, és végül az **Alkalmaz** gombra.
+
 
 > Későbbi lépésekben ezeket kitöltjük a valós értékekkel.
 
-### 3.5 ⚠️ Vissza a VM-re: config.js frissítése
+### 3.6 ⚠️ Vissza a VM-re: config.js frissítése
+
+A Web App URL-jét az **Áttekintés** menüben találod. **Alapértelmezett tartomány**: `XXXXXXXXXX.azurewebsites.net` (vagy a te egyedi URL-ed).
 
 Nyisd meg a VM-en: `C:\inetpub\wwwroot\js\config.js` (Notepad vagy VS Code)
 
-Cseréld ki az `XXXXXXXXXX`-et:
+Cseréld ki a https:// utáni részt a te App Service URL-edre, így:
 
 ```javascript
 const CONFIG = {
-  BACKEND_URL: "https://azure-quotes-api.azurewebsites.net",
+  BACKEND_URL: "https://XXXXXXXXXX.azurewebsites.net",
 };
 ```
 
-> Az App Service URL-t megtalálod: Azure Portal → App Service → **Overview** → **Default domain**
+
+Mentés után a frontend készen áll, de még nem fog működni, mert a backendben sincsenek meg a helyes környezeti változók.
 
 ---
 
