@@ -11,7 +11,7 @@ Szükséges Application Settings (Azure Portal → App Service → Configuration
   DB_NAME            cloudquotes
   OPENAI_ENDPOINT    https://<erőforrás>.openai.azure.com/
   OPENAI_KEY         Azure OpenAI API kulcs
-  OPENAI_DEPLOYMENT  deployment neve (pl. gpt-4o-mini)
+  OPENAI_DEPLOYMENT  deployment neve (pl. gpt-4.1-mini)
 """
 
 import os
@@ -75,7 +75,7 @@ def openai_client():
         api_version    = "2024-02-01",
     )
 
-DEPLOYMENT = os.environ.get("OPENAI_DEPLOYMENT", "gpt-4o-mini")
+DEPLOYMENT = os.environ.get("OPENAI_DEPLOYMENT", "gpt-4.1-mini")
 
 SYSTEM = (
     "Te egy tapasztalt Azure cloud architect és trainer vagy. "
