@@ -40,16 +40,16 @@
             <div class="controls-row">
                 <button class="btn btn-primary" onclick="loadRandomQuote()">🎲 Új idézet</button>
             </div>
-            <div class="controls-row">
+        </div>
+
+        <details class="quotes-collapsible" id="quotesCollapsible">
+            <summary class="section-title">📚 Összes idézet</summary>
+            <div class="controls-row filter-row">
                 <button class="btn btn-secondary" data-cat="tech" onclick="filterCategory(this)">💻 Tech</button>
                 <button class="btn btn-secondary" data-cat="cloud" onclick="filterCategory(this)">☁️ Cloud</button>
                 <button class="btn btn-secondary" data-cat="motivation" onclick="filterCategory(this)">🚀 Motiváció</button>
                 <button class="btn btn-secondary" data-cat="" onclick="filterCategory(this)">📋 Összes</button>
             </div>
-        </div>
-
-        <details class="quotes-collapsible" id="quotesCollapsible">
-            <summary class="section-title">📚 Összes idézet</summary>
             <div class="quotes-grid" id="quotesGrid"></div>
         </details>
 
