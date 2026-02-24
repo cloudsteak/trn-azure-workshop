@@ -220,6 +220,8 @@ App Service → **Üzembe helyezési központ**
 
 Mentéshez kattints a **Mentés** gombra.
 
+
+
 Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két helyen kell módosítani**:
 
 ```yaml
