@@ -183,9 +183,13 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
 **Üzembe helyezés**
 
-| Beállítás | Érték |
-| --------- | ---------------------------- |
-| Folyamatos üzembe helyezés | **GitHub** |
+| Beállítás                  | Érték                        |
+| -------------------------- | ---------------------------- |
+| Folyamatos üzembe helyezés | **Engedélyezés**             |
+| Szervezet                  | a te GitHub felhasználóneved |
+| Adattár                    | `trn-azure-workshop`         |
+| Ág                         | `main`                       |
+| Alapszintű hitelesítés     | **Engedélyezés**             |
 
 ### 3.2 Startup parancs beállítása
 
