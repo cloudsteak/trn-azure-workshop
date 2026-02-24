@@ -183,15 +183,19 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
 **Üzembe helyezés**
 
-| Beállítás                  | Érték                        |
-| -------------------------- | ---------------------------- |
-| Folyamatos üzembe helyezés | **Engedélyezés**             |
-| Szervezet                  | a te GitHub felhasználóneved |
-| Adattár                    | `trn-azure-workshop`         |
-| Ág                         | `main`                       |
-| Alapszintű hitelesítés     | **Engedélyezés**             |
+### 3.2 Alapbeállítások
 
-### 3.2 Startup parancs beállítása
+App Service → **Konfiguráció** → **Általános beállítások**
+
+| Beállítás           | Érték                        |
+| ------------------- | ---------------------------- |
+| SCM alapszintű hitelesítés közzétételi hitelesítő adatai | **Engedélyezés**             |
+| Mindig bekapcsolvat | **Engedélyezés**             |
+
+Mentéshez kattints az **Alkalmaz** gombra.
+
+
+### 3.3 Startup parancs beállítása
 
 App Service → **Konfiguráció** → **Verembeállítások** → **Indítási parancs**:
 
@@ -199,20 +203,22 @@ App Service → **Konfiguráció** → **Verembeállítások** → **Indítási 
 gunicorn --bind 0.0.0.0 --timeout 230 app:app
 ```
 
-→ **Save**
+Mentéshez kattints az **Alkalmaz** gombra.
 
-### 3.3 GitHub auto-deploy bekötése
+### 3.4 GitHub auto-deploy bekötése
 
-App Service → **Deployment Center**
+App Service → **Üzembe helyezési központ**
 
-| Beállítás | Érték                        |
-| --------- | ---------------------------- |
-| Forrás    | **GitHub**                   |
-| Szervezet | a te GitHub felhasználóneved |
-| Tároló    | `trn-azure-workshop`         |
-| Ág        | `main`                       |
+| Beállítás                  | Érték                        |
+| -------------------------- | ---------------------------- |
+| Folyamatos üzembe helyezés | **Engedélyezés**             |
+| Szervezet                  | a te GitHub felhasználóneved |
+| Adattár                    | `trn-azure-workshop`         |
+| Ág                         | `main`                       |
+| Munkafolyamat-beállítás    | Munkafolyamat hozzáadása...  |
+| Alapszintű hitelesítés     | **Engedélyezés**             |
 
-→ **Mentés**
+Mentéshez kattints a **Mentés** gombra.
 
 Az Azure automatikusan létrehozza a `.github/workflows/main_azure-quotes-api.yml` fájlt a repóban. Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két helyen kell módosítani**:
 
