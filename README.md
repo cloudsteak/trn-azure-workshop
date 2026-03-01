@@ -250,6 +250,7 @@ Mivel az `app.py` a `02-Backend/` mappában van, a generált fájlban **két hel
 ```
 
 Minden `main` branchre pusholt változtatás után az App Service automatikusan újra deployol.
+**Fontos**: Várd meg, míg az Üzembehelyezési központban a legutóbbi futás státusza **Sikeres** lesz, mielőtt továbblépsz.
 
 ### 3.5 ⚠️ App Service: környezeti változók felvétele (egyelőre üresen)
 
@@ -356,12 +357,7 @@ _Megjegyzés_:
 | Jelszó                   | válassz és jegyezd meg! |
 | Számítási feladat típusa | **Dev/Test**            |
 
-**Networking tab:**
-
-- Connectivity method: **Public access**
-- ✅ Add current client IP address
-
-→ **Review + create** → Várj ~5 percet.
+→ **Felülvizsgálat + létrehozás** → Várj ~5 percet.
 
 ### 4.2 Firewall – App Service hozzáférés
 
@@ -443,7 +439,7 @@ Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
 
 1. AI Foundry projekt létrehozása
 
-- Portál → keresd: **Azure AI Foundry**) → **AI Foundry-erőforrás létrehozása**
+- Portál → keresd: **Azure AI Foundry** → **AI Foundry-erőforrás létrehozása**
 
 | Beállítás            | Érték                           |
 | -------------------- | ------------------------------- |
@@ -463,11 +459,11 @@ Végül hozd létre a szokásos módon.
 
 2. Modell deploy (AI Foundry)
 
-- Foundry portál → **Models + Endpoints** → **Deploy model** → **Deploy base model**
+- Foundry portál → **Modellek és végpontok** → **Modell üzembe helyezése** → **Alapmodell üzembe helyezése**
 - Model: válaszd (pl. `gpt-4.1-mini`) — ez egy olcsóbb, de még mindig nagyon jó modell a GPT-4 családból
-- Kattints a **Confirm** gombra a deploy megkezdéséhez
+- Kattints a **Megerősítés** gombra a deploy megkezdéséhez
 - Deployment name: használj egyszerű, pontos nevet (például `gpt-4.1-mini`) — ez kerül az `OPENAI_DEPLOYMENT` env var‑ba. Bizonyosodj meg róla, hogy a _Resource location\*\* megegyezik a portálon létrehozott erőforrás régiójával_ (Sweden Central).
-- **Deploy** → várd meg, hogy a deployment státusza **Ready / Succeeded** legyen
+- **Üzembe helyezés** → várd meg, hogy a deployment státusza **Kész / Sikeres** legyen
 
 3. Kulcs és endpoint (Portal)
 
@@ -523,16 +519,17 @@ Minden törlődik egyszerre.
 
 ## ❓ Gyakori problémák
 
-| Probléma                 | Megoldás                                                               |
-| ------------------------ | ---------------------------------------------------------------------- |
-| App Service 500 hiba     | App Service → **Log stream** – ott látod a Python hibát                |
-| MySQL connection refused | Firewall rule hozzáadva? App Service újraindult a Save után?           |
-| CORS hiba böngészőben    | `flask-cors` telepítve? App Service újraindult?                        |
-| OpenAI 404               | A deployment neve pontosan egyezik az `OPENAI_DEPLOYMENT` env var-ral? |
-| OpenAI auth error        | Trailing slash az endpoint URL végén! (`…azure.com/`)                  |
-| Frontend nem frissül     | `Ctrl+Shift+R` hard reload a böngészőben                               |
-| GitHub deploy nem fut    | Repo → Actions → nézd meg a workflow log-ot                            |
-| IIS nem indul            | PowerShell → `Get-Service W3SVC`                                       |
+| Probléma                     | Megoldás                                                               |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| App Service létrehozási hiba | Várj 5-10 percet, majd próbáld újra létrehozni (kapacitás probléma)    |
+| App Service 500 hiba         | App Service → **Log stream** – ott látod a Python hibát                |
+| MySQL connection refused     | Firewall rule hozzáadva? App Service újraindult a Save után?           |
+| CORS hiba böngészőben        | `flask-cors` telepítve? App Service újraindult?                        |
+| OpenAI 404                   | A deployment neve pontosan egyezik az `OPENAI_DEPLOYMENT` env var-ral? |
+| OpenAI auth error            | Trailing slash az endpoint URL végén! (`…azure.com/`)                  |
+| Frontend nem frissül         | `Ctrl+Shift+R` hard reload a böngészőben                               |
+| GitHub deploy nem fut        | Repo → Actions → nézd meg a workflow log-ot                            |
+| IIS nem indul                | PowerShell → `Get-Service W3SVC`                                       |
 
 ---
 
