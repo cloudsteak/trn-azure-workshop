@@ -171,17 +171,20 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
 **Alapvető beállítások**
 
-| Beállítás         | Érték                                            |
-| ----------------- | ------------------------------------------------ |
-| Erőforrás csoport | `workshop-rg`                                    |
-| Név               | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
-| Közzététel        | **Code**                                         |
-| Futtatókörnyezet  | **Python 3.12**                                  |
-| OS                | **Linux**                                        |
-| Régió             | `Sweden Central`                                 |
-| Díjszabási csomag | **Alapszintű B1**                                |
+| Beállítás                     | Érték                                            |
+| ----------------------------- | ------------------------------------------------ |
+| Erőforrás csoport             | `workshop-rg`                                    |
+| Név                           | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
+| Közzététel                    | **Code**                                         |
+| Futtatókörnyezet              | **Python 3.12**                                  |
+| OS                            | **Linux**                                        |
+| Régió                         | `Sweden Central`                                 |
+| Linux-csomag (Sweden Central) | Új: `quotes-api-plan` (egyedi név)               |
+| Díjszabási csomag             | **Alapszintű B1**                                |
 
 **Felülvizsgálat + létrehozás** → Várj ~1 percet.
+
+_Megjegyzés: Ha elsőre nem sikerül létrehozni az akébbi hiba miatt: `No available instances to satisfy this request. App Service is attempting to increase capacity. Please retry your request later.` - ez egy kapacitásprobléma a régióban, várj néhány percet, majd kattints az `Újbóli üzembe helyezés` gombra._
 
 ### 3.2 Alapbeállítások
 
