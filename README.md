@@ -181,7 +181,7 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 | Régió             | `Sweden Central`                                 |
 | Díjszabási csomag | **Alapszintű B1**                                |
 
-**Üzembe helyezés**
+**Felülvizsgálat + létrehozás** → Várj ~1 percet.
 
 ### 3.2 Alapbeállítások
 
