@@ -211,14 +211,14 @@ Mentéshez kattints az **Alkalmaz** gombra.
 
 App Service → **Üzembe helyezési központ**
 
-| Beállítás                  | Érték                        |
-| -------------------------- | ---------------------------- |
-| Folyamatos üzembe helyezés | **Engedélyezés**             |
-| Szervezet                  | a te GitHub felhasználóneved |
-| Adattár                    | `trn-azure-workshop`         |
-| Ág                         | `main`                       |
-| Munkafolyamat-beállítás    | Munkafolyamat hozzáadása...  |
-| Alapszintű hitelesítés     | **Engedélyezés**             |
+| Beállítás                  | Érték                         |
+| -------------------------- | ----------------------------- |
+| Folyamatos üzembe helyezés | **Engedélyezés**              |
+| Szervezet                  | a te GitHub felhasználóneved  |
+| Adattár                    | `trn-azure-workshop`          |
+| Ág                         | `main`                        |
+| Munkafolyamat-beállítás    | Munkafolyamat hozzáadása: ... |
+| Hitelesítés típusa         | **Alapszintű hitelesítés**    |
 
 Mentéshez kattints a **Mentés** gombra.
 
