@@ -76,7 +76,7 @@ graph TD
 
 - Azure előfizetés (ingyenes trial elég)
 - GitHub fiók (a backend auto-deployhoz)
-- Régió mindenhova: **Sweden Central**
+- Régió mindenhova: **North Europe**
 - **DBeaver Community** (adatbázis kezeléshez) – https://dbeaver.io/download/
 
 ---
@@ -85,10 +85,10 @@ graph TD
 
 Azure Portal → **Resource groups** → **Létrehozás**
 
-| Beállítás | Érték            |
-| --------- | ---------------- |
-| Name      | `workshop-rg`    |
-| Region    | `Sweden Central` |
+| Beállítás | Érték          |
+| --------- | -------------- |
+| Name      | `workshop-rg`  |
+| Region    | `North Europe` |
 
 > 💡 Az összes erőforrást ide rakjuk – a végén egyetlen törlésssel mindent eltávolítunk.
 
@@ -106,7 +106,7 @@ Azure Portal → **Virtual machines** → **Létrehozás** → **Azure virtual m
 | ----------------- | --------------------------------------------- |
 | Erőforrás csoport | `workshop-rg`                                 |
 | Név               | `frontend-vm`                                 |
-| Régió             | `Sweden Central`                              |
+| Régió             | `North Europe`                                |
 | Kép               | **Windows Server 2022 Datacenter**            |
 | Méret             | **Standard_B2s**                              |
 | Felhasználónév    | `rendszergazda`                               |
@@ -171,16 +171,16 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
 **Alapvető beállítások**
 
-| Beállítás                     | Érték                                            |
-| ----------------------------- | ------------------------------------------------ |
-| Erőforrás csoport             | `workshop-rg`                                    |
-| Név                           | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
-| Közzététel                    | **Code**                                         |
-| Futtatókörnyezet              | **Python 3.12**                                  |
-| OS                            | **Linux**                                        |
-| Régió                         | `Sweden Central`                                 |
-| Linux-csomag (Sweden Central) | Új: `quotes-api-plan` (egyedi név)               |
-| Díjszabási csomag             | **Alapszintű B1**                                |
+| Beállítás                   | Érték                                            |
+| --------------------------- | ------------------------------------------------ |
+| Erőforrás csoport           | `workshop-rg`                                    |
+| Név                         | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
+| Közzététel                  | **Code**                                         |
+| Futtatókörnyezet            | **Python 3.12**                                  |
+| OS                          | **Linux**                                        |
+| Régió                       | `North Europe`                                   |
+| Linux-csomag (North Europe) | Új: `quotes-api-plan` (egyedi név)               |
+| Díjszabási csomag           | **Alapszintű B1**                                |
 
 **Felülvizsgálat + létrehozás** → Várj ~1 percet.
 
@@ -352,7 +352,7 @@ _Megjegyzés_:
 | ------------------------ | ----------------------- |
 | Erőforráscsoport         | `workshop-rg`           |
 | Kiszolgálónév            | `quotes-db` _(egyedi!)_ |
-| Régió                    | `Sweden Central`        |
+| Régió                    | `North Europe`          |
 | Admin felhasználónév     | `adminuser`             |
 | Jelszó                   | válassz és jegyezd meg! |
 | Számítási feladat típusa | **Dev/Test**            |
@@ -445,7 +445,7 @@ Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
 | -------------------- | ------------------------------- |
 | Erőforrás csoport    | `workshop-rg`                   |
 | Név                  | `quotes-azureai` _(egyedi név)_ |
-| Régió                | `Sweden Central`                |
+| Régió                | `North Europe`                  |
 | Default project name | `quotes-project`                |
 
 Végül hozd létre a szokásos módon.
@@ -462,7 +462,7 @@ Végül hozd létre a szokásos módon.
 - Foundry portál → **Modellek és végpontok** → **Modell üzembe helyezése** → **Alapmodell üzembe helyezése**
 - Model: válaszd (pl. `gpt-4.1-mini`) — ez egy olcsóbb, de még mindig nagyon jó modell a GPT-4 családból
 - Kattints a **Megerősítés** gombra a deploy megkezdéséhez
-- Deployment name: használj egyszerű, pontos nevet (például `gpt-4.1-mini`) — ez kerül az `OPENAI_DEPLOYMENT` env var‑ba. Bizonyosodj meg róla, hogy a _Resource location\*\* megegyezik a portálon létrehozott erőforrás régiójával_ (Sweden Central).
+- Deployment name: használj egyszerű, pontos nevet (például `gpt-4.1-mini`) — ez kerül az `OPENAI_DEPLOYMENT` env var‑ba. Bizonyosodj meg róla, hogy a _Resource location\*\* megegyezik a portálon létrehozott erőforrás régiójával_ (North Europe).
 - **Üzembe helyezés** → várd meg, hogy a deployment státusza **Kész / Sikeres** legyen
 
 3. Kulcs és endpoint (Portal)
@@ -487,7 +487,7 @@ Módosítsd egyenként az alábbi változókat:
 - Foundry: győződj meg, hogy a deployment státusza **Ready**
 - App Service → **Configuration**: látszanak-e az `OPENAI_*` bejegyzések
 - App Service → **Log stream**: figyeld a startup és OpenAI hibákat
-- Health endpoint, például: https://azure-quotes-api.swedencentral-01.azurewebsites.net/health — elvárt: `"config":{"openai_missing":[]}` és `"openai":"ok"`
+- Health endpoint, például: https://azure-quotes-api.northeurope-01.azurewebsites.net/health — elvárt: `"config":{"openai_missing":[]}` és `"openai":"ok"`
 
 Hibakeresési tippek (portal):
 
