@@ -102,17 +102,17 @@ Azure Portal → **Resource groups** → **Létrehozás**
 
 Azure Portal → **Virtual machines** → **Létrehozás** → **Azure virtual machine**
 
-| Beállítás         | Érték                                         |
-| ----------------- | --------------------------------------------- |
-| Erőforrás csoport | `workshop-rg`                                 |
-| Név               | `frontend-vm`                                 |
-| Régió             | `North Europe`                                |
-| Kép               | **Windows Server 2022 Datacenter**            |
-| Méret             | **Standard_B2s**                              |
-| Felhasználónév    | `rendszergazda`                               |
-| Jelszó            | válassz és jegyezd meg!                       |
-| Bejövő portok     | **HTTP (80), RDP (3389)**                     |
-| Nyilvános IP      | **Igen**, hozzunk létre egyet (hálózat fülön) |
+| Beállítás         | Érték                                             |
+| ----------------- | ------------------------------------------------- |
+| Erőforrás csoport | `workshop-rg`                                     |
+| Név               | `frontend-vm`                                     |
+| Régió             | `North Europe`                                    |
+| Kép               | **Windows Server 2025 Datacenter: Azure Edition** |
+| Méret             | **Standard_B2s**                                  |
+| Felhasználónév    | `rendszergazda`                                   |
+| Jelszó            | válassz és jegyezd meg!                           |
+| Bejövő portok     | **HTTP (80), RDP (3389)**                         |
+| Nyilvános IP      | **Igen**, hozzunk létre egyet (hálózat fülön)     |
 
 ### 2.2 Csatlakozás
 
@@ -167,7 +167,7 @@ Teszt: `http://<VM_PUBLIC_IP>` → Az oldal megjelenik. A health dashboard piros
 
 ### 3.1 App Service létrehozása
 
-Azure Portal → **App Services** → **Létrehozás** → **Web App**
+Azure Portal → **App Services** → **Létrehozás** → **Webalkalmazás**
 
 **Alapvető beállítások**
 
@@ -175,7 +175,7 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 | --------------------------- | ------------------------------------------------ |
 | Erőforrás csoport           | `workshop-rg`                                    |
 | Név                         | `azure-quotes-api` _(egyedi névnek kell lenni!)_ |
-| Közzététel                  | **Code**                                         |
+| Közzététel                  | **Kód**                                          |
 | Futtatókörnyezet            | **Python 3.12**                                  |
 | OS                          | **Linux**                                        |
 | Régió                       | `North Europe`                                   |
@@ -184,11 +184,11 @@ Azure Portal → **App Services** → **Létrehozás** → **Web App**
 
 **Felülvizsgálat + létrehozás** → Várj ~1 percet.
 
-_Megjegyzés: Ha elsőre nem sikerül létrehozni az akébbi hiba miatt: `No available instances to satisfy this request. App Service is attempting to increase capacity. Please retry your request later.` - ez egy kapacitásprobléma a régióban, várj néhány percet, majd kattints az `Újbóli üzembe helyezés` gombra._
+_Megjegyzés: Ha elsőre nem sikerül létrehozni az alábbi hiba miatt: `No available instances to satisfy this request. App Service is attempting to increase capacity. Please retry your request later.` - ez egy kapacitásprobléma a régióban, várj néhány percet, majd kattints az `Újbóli üzembe helyezés` gombra._
 
 ### 3.2 Alapbeállítások
 
-App Service → **Konfiguráció** → **Általános beállítások**
+App Service → **Beállítások** → **Konfiguráció**
 
 | Beállítás                                                | Érték            |
 | -------------------------------------------------------- | ---------------- |
@@ -209,16 +209,17 @@ Mentéshez kattints az **Alkalmaz** gombra.
 
 ### 3.4 GitHub auto-deploy bekötése
 
-App Service → **Üzembe helyezési központ**
+App Service → **Üzembe helyezés** → **Üzembe helyezési központ**
 
-| Beállítás                  | Érték                         |
-| -------------------------- | ----------------------------- |
-| Folyamatos üzembe helyezés | **Engedélyezés**              |
-| Szervezet                  | a te GitHub felhasználóneved  |
-| Adattár                    | `trn-azure-workshop`          |
-| Ág                         | `main`                        |
-| Munkafolyamat-beállítás    | Munkafolyamat hozzáadása: ... |
-| Hitelesítés típusa         | **Alapszintű hitelesítés**    |
+| Beállítás                  | Érték                                  |
+| -------------------------- | -------------------------------------- |
+| Folyamatos üzembe helyezés | **Folyamatos üzembe helyezés (CI/CD)** |
+| Forrás                     | GitHub                                 |
+| Szervezet                  | a te GitHub felhasználóneved           |
+| Adattár                    | `trn-azure-workshop`                   |
+| Ág                         | `main`                                 |
+| Munkafolyamat-beállítás    | Munkafolyamat hozzáadása: ...          |
+| Hitelesítés típusa         | **Alapszintű hitelesítés**             |
 
 Mentéshez kattints a **Mentés** gombra.
 
@@ -305,7 +306,7 @@ Itt egy példa arra, hogyan nézhet ki a JSON:
   },
   {
     "name": "OPENAI_DEPLOYMENT",
-    "value": "gpt-4.1-mini",
+    "value": "gpt-5.4-mini",
     "slotSetting": false
   }
 ]
@@ -345,7 +346,7 @@ iisreset
 
 ### 4.1 MySQL Rugalmas kiszolgáló létrehozása
 
-Azure Portal → **Azure Database for MySQL – rugalmas kiszolgálók** → **Létrehozás**
+Azure Portal → **Azure Database for MySQL** → **Rugalmas kiszolgáló** → **Gyors létrehozás**
 
 _Megjegyzés_:
 
@@ -367,7 +368,7 @@ _Megjegyzés_:
 
 ### 4.2 Firewall – App Service hozzáférés
 
-MySQL Rugalmas kiszolgáló → **Hálózatkezelő**
+MySQL Rugalmas kiszolgáló → **Beállítások** → **Hálózatkezelés**
 
 | Beállítás                                                                                                | Érték                                                        |
 | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
@@ -437,7 +438,7 @@ Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
 
 ---
 
-## 5. lépés – AI Chatbot (Azure OpenAI)
+## 5. lépés – AI Chatbot (Azure AI Foundry)
 
 > _(Nincs kódfájl – a backend kód a 3. lépésben már felkerült)_
 
@@ -445,37 +446,41 @@ Nyisd meg a webapp-ot: `http://<VM_PUBLIC_IP>`
 
 1. AI Foundry projekt létrehozása
 
-- Portál → keresd: **Azure AI Foundry** → **AI Foundry-erőforrás létrehozása**
+- Portál → keresd: **Azure Foundry** → **Foundry-erőforrás létrehozása**
 
 | Beállítás            | Érték                           |
 | -------------------- | ------------------------------- |
 | Erőforrás csoport    | `workshop-rg`                   |
 | Név                  | `quotes-azureai` _(egyedi név)_ |
-| Régió                | `North Europe`                  |
+| Régió                | `West Europe`                  |
 | Default project name | `quotes-project`                |
 
 Végül hozd létre a szokásos módon.
 
 > 1-2 perc alatt létrejön az erőforrás, utána lépj be a Foundry kezelőfelületére a portálról.
-> 💡 Az Azure AI Foundry egy új szolgáltatás, amely egyesíti az Azure OpenAI és más AI képességeket egy közös kezelőfelületen. Itt fogjuk deployolni a gpt-4.1-mini modellt, amit a backendünk használni fog.
+> 💡 Az Azure AI Foundry egy új szolgáltatás, amely egyesíti az Azure OpenAI és más AI képességeket egy közös kezelőfelületen. Itt fogjuk deployolni a gpt-5.4-mini modellt, amit a backendünk használni fog.
 
 - Amint kész kattints a **Ugrás a Foundry portálra** gombra.
 
 > Mivel ennek különálló felölete van, így ide be kell jelentkezni ugyanazzal az Azure fiókkal, amivel a portálra is be vagy jelentkezve.
 
-2. Modell deploy (AI Foundry)
+2. Modell deploy (MicrosoftFoundry)
 
-- Foundry portál → **Modellek és végpontok** → **Modell üzembe helyezése** → **Alapmodell üzembe helyezése**
-- Model: válaszd (pl. `gpt-4.1-mini`) — ez egy olcsóbb, de még mindig nagyon jó modell a GPT-4 családból
+- Foundry portál → **Üzemelő példányok megtekintése** (kezdőlapon) → **Alapmodell üzembe helyezése**
+- Model: válaszd (pl. `gpt-5.4-mini`) — ez egy olcsóbb, de még mindig nagyon jó modell a GPT-5 családból
 - Kattints a **Megerősítés** gombra a deploy megkezdéséhez
-- Deployment name: használj egyszerű, pontos nevet (például `gpt-4.1-mini`) — ez kerül az `OPENAI_DEPLOYMENT` env var‑ba. Bizonyosodj meg róla, hogy a _Resource location\*\* megegyezik a portálon létrehozott erőforrás régiójával_ (North Europe).
+- Deployment name: használj egyszerű, pontos nevet (például `gpt-5.4-mini`) — ez kerül az `OPENAI_DEPLOYMENT` env var‑ba. Bizonyosodj meg róla, hogy a _Resource location\*\* megegyezik a portálon létrehozott erőforrás régiójával_ (West Europe).
 - **Üzembe helyezés** → várd meg, hogy a deployment státusza **Kész / Sikeres** legyen
 
-3. Kulcs és endpoint (Portal)
+3. Kulcs és Projektvégpont (Microsoft Foundry Studio)
 
-- OpenAI erőforrás → **Keys and Endpoint**
-- Másold ki az **Endpoint**-ot (például: `https://quotes-azureai.cognitiveservices.azure.com/`) — ügyelj a trailing slash‑re ha a kód azt várja
-- Másold ki az **Key1** értékét (API kulcs)
+Miutén létrehoztad a deploymentet, folytasd a következő lépéssel:
+
+- Foundry Studio → **Modellek** 
+- Üzembehelyezett modellek listájából válaszd ki a létrehozott deploymentet (pl. `gpt-5.4-mini`)
+- Jobb oldalon másold ki a **Projektvégpont**-ot
+- Másold ki az Endpoint-ot (például: https://quotes-azureai.services.ai.azure.com/openai/v1). A projekt végpontot (…/api/projects/…) is elfogadja a kód, a záró perjel nem számít.
+- Másold ki az **API kulcs** értékét
 
 4. App Service — környezeti változók beállítása
 
@@ -483,9 +488,9 @@ App Service → **Beállítások** → **Környezeti változók** → **Alkalmaz
 
 Módosítsd egyenként az alábbi változókat:
 
-- `OPENAI_ENDPOINT` = (az Endpoint)
-- `OPENAI_KEY` = (Key1)
-- `OPENAI_DEPLOYMENT` = (a Foundry deployment neve, pl. `gpt-4.1-mini`)
+- `OPENAI_ENDPOINT` = (a Projektvégpont)
+- `OPENAI_KEY` = (API kulcs)
+- `OPENAI_DEPLOYMENT` = (a Foundry deployment neve, pl. `gpt-5.4-mini`)
 - **Alkalmaz / Confirm** → az App Service automatikusan újraindul.
 
 5. Ellenőrzés (portal)
@@ -546,6 +551,6 @@ Minden törlődik egyszerre.
 | VM Standard_B2s            | ❌             | ~$0.05/nap      |
 | App Service Alapszintű B1  | ❌             | ~$0.432/nap     |
 | Azure MySQL Burstable B1ms | ❌             | ~$0.02/nap      |
-| Azure OpenAI gpt-4.1-mini  | ❌ Pay-per-use | ~$0.01–0.05/nap |
+| Azure OpenAI gpt-5.4-mini  | ❌ Pay-per-use | ~$0.01–0.05/nap |
 
 Összesen: **~$0.5/nap** (nagyrészt az App Service miatt)
