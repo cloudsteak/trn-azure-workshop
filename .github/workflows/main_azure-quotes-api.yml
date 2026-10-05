@@ -39,7 +39,6 @@ jobs:
         with:
           name: python-app
           path: |
-            .
             02-Backend/
             !02-Backend/antenv/
 
