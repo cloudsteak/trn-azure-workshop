@@ -479,7 +479,7 @@ Miutén létrehoztad a deploymentet, folytasd a következő lépéssel:
 - Foundry Studio → **Modellek** 
 - Üzembehelyezett modellek listájából válaszd ki a létrehozott deploymentet (pl. `gpt-5.4-mini`)
 - Jobb oldalon másold ki a **Projektvégpont**-ot
-- Másold ki az Endpoint-ot (például: https://quotes-azureai.services.ai.azure.com/openai/v1). A projekt végpontot (…/api/projects/…) is elfogadja a kód, a záró perjel nem számít.
+- Másold ki az Endpoint-ot (például: https://quotes-azureai.services.ai.azure.com/api/projects/quotes-project).
 - Másold ki az **API kulcs** értékét
 
 4. App Service — környezeti változók beállítása
