@@ -9,9 +9,9 @@ Szükséges Application Settings (Azure Portal → App Service → Configuration
   DB_USER            MySQL felhasználónév (pl. adminuser)
   DB_PASSWORD        MySQL jelszó
   DB_NAME            cloudquotes
-  OPENAI_ENDPOINT    https://<erőforrás>.openai.azure.com/
+  OPENAI_ENDPOINT    https://<erőforrás>.services.ai.azure.com/openai/v1
   OPENAI_KEY         Azure OpenAI API kulcs
-  OPENAI_DEPLOYMENT  deployment neve (pl. gpt-4.1-mini)
+  OPENAI_DEPLOYMENT  deployment neve (pl. gpt-5.4-mini)
 """
 
 import os
@@ -19,7 +19,8 @@ import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pymysql
-from openai import AzureOpenAI
+from urllib.parse import urlparse
+from openai import OpenAI
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -66,16 +67,17 @@ def openai_client():
     if missing:
         raise RuntimeError(f"Hiányzó OpenAI konfiguráció: {', '.join(missing)}")
 
-    endpoint = os.environ.get("OPENAI_ENDPOINT", "")
+    endpoint = os.environ.get("OPENAI_ENDPOINT", "").strip().rstrip("/")
     key = os.environ.get("OPENAI_KEY", "")
 
-    return AzureOpenAI(
-        azure_endpoint = endpoint,
-        api_key        = key,
-        api_version    = "2024-02-01",
-    )
+    # Elfogadja a projekt végpontot / host nevet is, és /openai/v1-re normalizálja
+    if not endpoint.endswith("/openai/v1"):
+        parsed = urlparse(endpoint)
+        endpoint = f"{parsed.scheme}://{parsed.netloc}/openai/v1"
 
-DEPLOYMENT = os.environ.get("OPENAI_DEPLOYMENT", "gpt-4.1-mini")
+    return OpenAI(base_url=endpoint, api_key=key)
+
+DEPLOYMENT = os.environ.get("OPENAI_DEPLOYMENT", "gpt-5.4-mini")
 
 SYSTEM = (
     "Te egy tapasztalt Azure cloud architect és trainer vagy. "
@@ -110,10 +112,10 @@ def health():
         log.warning("DB health: %s", e)
 
     try:
-        openai_client().chat.completions.create(
+        openai_client().responses.create(
             model=DEPLOYMENT,
-            messages=[{"role": "user", "content": "ping"}],
-            max_tokens=1,
+            input="ping",
+            max_output_tokens=16,
         )
         result["openai"] = "ok"
     except Exception as e:
@@ -158,18 +160,17 @@ def chat():
     if not message:
         return jsonify({"error": "Üres üzenet"}), 400
 
-    messages = [{"role": "system", "content": SYSTEM}]
-    messages += history
+    messages = list(history)
     messages.append({"role": "user", "content": message})
 
     try:
-        resp = openai_client().chat.completions.create(
+        resp = openai_client().responses.create(
             model=DEPLOYMENT,
-            messages=messages,
-            max_tokens=500,
-            temperature=0.7,
+            instructions=SYSTEM,
+            input=messages,
+            max_output_tokens=1000,
         )
-        return jsonify({"reply": resp.choices[0].message.content})
+        return jsonify({"reply": resp.output_text})
     except Exception as e:
         log.exception("Chat hiba")
         return jsonify({"error": f"OpenAI hiba: {str(e)}"}), 500
