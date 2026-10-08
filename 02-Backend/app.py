@@ -70,7 +70,7 @@ def openai_client():
     endpoint = os.environ.get("OPENAI_ENDPOINT", "").strip().rstrip("/")
     key = os.environ.get("OPENAI_KEY", "")
 
-    # Elfogadja a projekt végpontot / host nevet is, és /openai/v1-re normalizálja
+    # Elfogadja a projekt végpontot / host nevet is, és /openai/v1-re normalizálja 
     if not endpoint.endswith("/openai/v1"):
         parsed = urlparse(endpoint)
         endpoint = f"{parsed.scheme}://{parsed.netloc}/openai/v1"
